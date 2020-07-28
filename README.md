@@ -4,7 +4,7 @@ This repository contains real world data science projects. We use CRISP-DM to or
 
 ---
 
-* Predict Housing prices (Regression): 
+### Predict Housing prices (Regression)
 
 * [Presentation](https://docs.google.com/presentation/d/1LXZTBUupzfc8XR1xR98194MAQvdKb4cbYvqOcOrs62A/edit#slide=id.p) | 
 
