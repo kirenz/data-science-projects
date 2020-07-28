@@ -1,6 +1,6 @@
 # Data Science Projects
 
-This repository contains examples of real world data science projects. 
+This repository contains examples of data science projects (statistical learning & machine learning). 
 
 ---
 
