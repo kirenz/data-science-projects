@@ -13,7 +13,8 @@ Make your first steps in Data Science.
 
 * [Presentation](https://docs.google.com/presentation/d/1g7wgZO_OaiFChKNxSazELcz7ylIlJViQpYh2chLxjdE/edit?usp=sharing)
 
-* [![Open In Colab](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb)
+* [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]
+(https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb)
 
 
 ---
