@@ -15,6 +15,7 @@ Make your first steps in Data Science.
 
 * [![Open In Colab](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb)
 
+
 ---
 
 ### Predict housing prices
