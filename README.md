@@ -26,7 +26,7 @@ Make your first steps in Data Science.
 
 * [Presentation](https://docs.google.com/presentation/d/1LXZTBUupzfc8XR1xR98194MAQvdKb4cbYvqOcOrs62A/edit#slide=id.p)
 
-* Python code: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-housing.ipynb)
+* [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-housing.ipynb)
 
 ---
 
