@@ -16,9 +16,9 @@ Make your first steps in Data Science.
 
 * [Presentation](https://docs.google.com/presentation/d/1g7wgZO_OaiFChKNxSazELcz7ylIlJViQpYh2chLxjdE/edit?usp=sharing)
 
-* Python code: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb)
+* [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb)
 
-* R code: [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">]()
+* [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](https://github.com/kirenz/data-science-projects/raw/master/ds-first-steps-happy-gdp.html)
 
 ---
 
