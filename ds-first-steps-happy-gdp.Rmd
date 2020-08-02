@@ -9,11 +9,6 @@ output:
   fig_width: 8
   highlight: tango
   number_sections: yes
-  toc: yes
-  toc_depth: 3
-  toc_float: 
-    collapsed: false
-    smooth_scroll: true 
   theme: paper
   df_print: paged
 ---
@@ -27,6 +22,12 @@ knitr::opts_chunk$set(
 ```
 
 
+  toc: yes
+  toc_depth: 3
+  toc_float: 
+    collapsed: false
+    smooth_scroll: true 
+    
 # Setup
 
 ```{r}
