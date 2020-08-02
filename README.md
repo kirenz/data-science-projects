@@ -4,6 +4,8 @@ This repository contains examples of data science projects. Most of the projects
 
 * [Data science lifecycle](https://docs.google.com/presentation/d/1Y_6d-yv0Wq9WQvWkYS64KYkcSoswewm-7t2jfSz3aT4/edit?usp=sharing)
 
+* [Data science framworks (architecture)](https://docs.google.com/presentation/d/1vP66PWVn9XtdU2oqJSM4xnfn_xCbs7qvlMRP9826uDY/edit?usp=sharing)
+
 
 ---
 
