@@ -1,7 +1,8 @@
 # Data Science Projects
 
-This repository contains examples of data science projects. 
+This repository contains examples of data science projects. Most of the projects use the cross-industry standard of data mining (CRISP-DM) to structure the data science lifecycle:
 
+* [Data science lifecycle](https://docs.google.com/presentation/d/1Y_6d-yv0Wq9WQvWkYS64KYkcSoswewm-7t2jfSz3aT4/edit?usp=sharing)
 
 
 ---
