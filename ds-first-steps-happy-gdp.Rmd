@@ -5,8 +5,8 @@ author: "Prof. Dr. Jan Kirenz, HdM Stuttgart"
 output:
  html_document:
   code_download: true
-  fig_height: 6
-  fig_width: 8
+  fig_height: 4
+  fig_width: 4
   highlight: tango
   number_sections: yes
   toc: yes
@@ -21,7 +21,7 @@ output:
 
 ```{css, echo=FALSE}
 
-/* some code to change the HTML-output */
+/* css code to change the HTML-output */
   
 h1 {
   color: #D0313C;
@@ -64,12 +64,13 @@ knitr::opts_chunk$set(
 # Common packages
 library(tidyverse) # collection of data science packages
 library(janitor) # data preparation package
-library(kableExtra) # get nice HTML tables
+library(kableExtra) # create nice HTML tables
+
 ```
 
 # Data import
 
-```{r}
+```{r fig.width=4, fig.height=4}
 
 # Load the data from GitHub
 LINK = "https://raw.githubusercontent.com/kirenz/datasets/master/oecd_gdp.csv"
@@ -86,6 +87,7 @@ ggplot(df, aes(x=gdp_per_capita,
   theme_classic()
 
 ```
+
 
 
 # Simple linear regression model
@@ -107,9 +109,11 @@ lm_fit <-
 tidy(lm_fit)
 
 # Make a prediction for a new GDP value
-# and print HTML-friendly output with kable()
 
 X_new <-  tibble(gdp_per_capita = c(50000)) # new GDP per capita
+
+
+# print HTML-friendly output with kable()
 
 kable(predict(lm_fit, new_data = X_new))
 
