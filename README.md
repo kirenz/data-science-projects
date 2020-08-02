@@ -18,6 +18,8 @@ Make your first steps in Data Science.
 
 * Python code: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb)
 
+<img src="https://www.r-project.org/logo/Rlogo.svg" width="20%">
+
 * ![R code](https://www.r-project.org/logo/Rlogo.svg) 
 ---
 
