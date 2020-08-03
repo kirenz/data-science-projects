@@ -122,7 +122,6 @@ rmse(truth = y_truth,
 glance(lm_fit$fit) # more measures
 
 # Make a prediction for a new GDP value
-
 X_new <-  tibble(gdp_per_capita = c(50000)) # new GDP per capita
 
 
