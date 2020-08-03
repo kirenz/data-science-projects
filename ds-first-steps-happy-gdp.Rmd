@@ -108,6 +108,19 @@ lm_fit <-
 # Model summary
 tidy(lm_fit)
 
+# Prediction
+lm_pred <-
+  lm_fit %>%
+  predict(new_data = df) %>%
+  mutate(y_truth = df$life_satisfaction)
+
+# Performance measures
+rmse(truth = y_truth, 
+     estimate = .pred, 
+     lm_pred) 
+
+glance(lm_fit$fit) # more measures
+
 # Make a prediction for a new GDP value
 
 X_new <-  tibble(gdp_per_capita = c(50000)) # new GDP per capita
