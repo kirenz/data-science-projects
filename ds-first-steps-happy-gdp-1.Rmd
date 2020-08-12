@@ -1,5 +1,5 @@
 ---
-title: "First steps in Data Science"
+title: "First steps in Data Science - Part 1"
 subtitle: "Does money make people happier?"
 author: "Prof. Dr. Jan Kirenz, HdM Stuttgart"
 output:
@@ -100,7 +100,7 @@ ggplot(df, aes(x=gdp_per_capita,
 
 # Model selection
 
-## Linear regression model
+Linear regression model.
 
 ```{r}
 
@@ -111,6 +111,62 @@ lm_mod <-
 
 ```
 
+# Model training 
+
+```{r}
+
+lm_fit <- 
+  lm_mod %>% 
+  fit(life_satisfaction ~ gdp_per_capita, 
+                data = df)
+
+```
+
+```{r}
+
+# Model summary
+tidy(lm_fit)
+
+```
+
+
+```{r}
+
+# Prediction
+lm_pred <-
+  lm_fit %>%
+  predict(new_data = df) %>%
+  mutate(y_truth = df$life_satisfaction)
+
+```
+
+```{r}
+
+# Performance measures
+rmse(truth = y_truth, 
+     estimate = .pred, 
+     lm_pred) 
+
+```
+
+
+```{r}
+
+glance(lm_fit$fit) # more measures
+
+```
+
+```{r}
+
+# Make a prediction for a new GDP value
+X_new <-  tibble(gdp_per_capita = c(50000)) # new GDP per capita
+
+(predict(lm_fit, new_data = X_new))
+
+```
+
+# Alternative model
+
 ## K-nearest neighbor
 
 ```{r}
@@ -120,134 +176,19 @@ knn_mod <-
   set_engine("kknn") %>% 
   set_mode("regression") 
 
-```
-
-
-# Data splitting
-
-```{r}
-set.seed(123)
-
-df_split <- initial_split(df) 
-df_train <- training(df_split) 
-df_test <- testing(df_split)
-
-```
-
-
-# Model training 
-
-## K-fold cross-validation
-
-```{r}
-set.seed(123)
-
-cv_folds <- vfold_cv(df_train, v = 5)
-
-```
-
-## Linear regression
-
-```{r}
-
-lm_fit <- 
-  lm_mod %>% 
-  fit_resamples(life_satisfaction ~ gdp_per_capita, 
-                resamples = cv_folds)
-
-```
-
-```{r}
-
-# Model summary
-lm_fit %>% 
-  collect_metrics(summarize = FALSE)
-
-lm_fit %>% 
-  collect_metrics(summarize = TRUE)
-
-```
-
-
-## K-nearest neighbor
-
-```{r}
-
 knn_fit <- 
   knn_mod %>% 
-  fit_resamples(life_satisfaction ~ gdp_per_capita, 
-                resamples = cv_folds)
-
-```
-
-```{r}
-
-# Model summary
-knn_fit %>% 
-  collect_metrics(summarize = FALSE)
-
-knn_fit %>% 
-  collect_metrics(summarize = TRUE)
-
-```
-
-
-# Model testing
-
-```{r}
-
-# Train best model with all training data
-last_lm_fit <- 
-  lm_mod %>% 
   fit(life_satisfaction ~ gdp_per_capita, 
-                data = df_train)
-
-```
-
-
-```{r}
+                data = df)
 
 # Model coefficients
-tidy(last_lm_fit)
-
-```
-
-```{r}
-
-# Prediction
-last_lm_pred <-
-  last_lm_fit %>%
-  predict(new_data = df_test) %>%
-  mutate(y_truth = df_test$life_satisfaction)
-
-```
-
-```{r}
-
-# Performance measures
-rmse(truth = y_truth, 
-     estimate = .pred, 
-     last_lm_pred) 
+tidy(knn_fit)
 
 ```
 
 
 ```{r}
 
-glance(last_lm_fit$fit) # more measures
+
 
 ```
-
-```{r}
-
-# Make a prediction for a new GDP value
-X_new <-  tibble(gdp_per_capita = c(50000)) # new GDP per capita
-
-```
-
-```{r}
-
-(predict(last_lm_fit, new_data = X_new))
-
-```
-
