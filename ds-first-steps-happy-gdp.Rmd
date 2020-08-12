@@ -21,7 +21,7 @@ output:
 
 ```{css, echo=FALSE}
 
-/* css code to change the HTML-output */
+/* css code to change the look of the HTML-output */
   
 h1 {
   color: #D0313C;
@@ -62,20 +62,29 @@ knitr::opts_chunk$set(
 ```{r}
 
 # Common packages
-library(tidyverse) # collection of data science packages
+library(tidyverse) # collection of important packages
+library(tidymodels)  # collection of data science packages
 library(janitor) # data preparation package
-library(kableExtra) # create nice HTML tables
+library(kableExtra) # to create nice HTML tables
 
 ```
 
 # Data import
 
-```{r fig.width=4, fig.height=4}
+```{r}
 
 # Load the data from GitHub
 LINK = "https://raw.githubusercontent.com/kirenz/datasets/master/oecd_gdp.csv"
-
 df <- read_csv(LINK)
+
+# Take a look at the data
+glimpse(df)
+
+```
+
+# Data preparation
+
+```{r fig.width=4, fig.height=4}
 
 # Change column names
 df <-  clean_names(df)
@@ -89,52 +98,22 @@ ggplot(df, aes(x=gdp_per_capita,
 ```
 
 
+# Model selection
 
-# Simple linear regression model
+## Linear regression model
 
 ```{r}
-library(tidymodels)
 
-# Select a linear regression model
 lm_mod <- 
   linear_reg() %>% 
-  set_engine("lm")
-
-# Train the model
-lm_fit <- 
-  lm_mod %>% 
-  fit(life_satisfaction ~ gdp_per_capita, data = df)
-
-# Model summary
-tidy(lm_fit)
-
-# Prediction
-lm_pred <-
-  lm_fit %>%
-  predict(new_data = df) %>%
-  mutate(y_truth = df$life_satisfaction)
-
-# Performance measures
-rmse(truth = y_truth, 
-     estimate = .pred, 
-     lm_pred) 
-
-glance(lm_fit$fit) # more measures
-
-# Make a prediction for a new GDP value
-X_new <-  tibble(gdp_per_capita = c(50000)) # new GDP per capita
-
-
-# print HTML-friendly output with kable()
-
-kable(predict(lm_fit, new_data = X_new))
+  set_engine("lm") %>% 
+  set_mode(mode = "regression") 
 
 ```
 
-# K-Nearest Neighbor Model
+## K-nearest neighbor
 
 ```{r}
-
 library(kknn)
 
 knn_mod <- 
@@ -142,13 +121,114 @@ knn_mod <-
   set_engine("kknn") %>% 
   set_mode("regression") 
 
-knn_fit <- 
-  knn_mod %>% 
-  fit(life_satisfaction ~ gdp_per_capita, data = df)
+```
 
-kable(predict(knn_fit, new_data = X_new)) 
+
+# Data splitting
+
+```{r}
+set.seed(123)
+
+df_split <- initial_split(df) 
+df_train <- training(df_split) 
+df_test <- testing(df_split)
 
 ```
+
+
+# Model training 
+
+## K-fold cross-validation
+
+```{r}
+set.seed(123)
+
+cv_folds <- vfold_cv(df_train, v = 5)
+
+```
+
+## Linear regression
+
+```{r}
+
+lm_fit <- 
+  lm_mod %>% 
+  fit_resamples(life_satisfaction ~ gdp_per_capita, 
+                resamples = cv_folds)
+
+```
+
+```{r}
+
+# Model summary
+lm_fit %>% 
+  collect_metrics(summarize = FALSE)
+
+lm_fit %>% 
+  collect_metrics(summarize = TRUE)
+
+```
+
+
+## K-nearest neighbor
+
+```{r}
+
+knn_fit <- 
+  knn_mod %>% 
+  fit_resamples(life_satisfaction ~ gdp_per_capita, 
+                resamples = cv_folds)
+
+```
+
+```{r}
+
+# Model summary
+knn_fit %>% 
+  collect_metrics(summarize = FALSE)
+
+knn_fit %>% 
+  collect_metrics(summarize = TRUE)
+
+```
+
+
+# Model testing
+
+```{r}
+
+# Train best model with all training data
+
+last_lm_fit <- 
+  lm_mod %>% 
+  fit(life_satisfaction ~ gdp_per_capita, 
+                data = df_train)
+
+# Prediction
+last_lm_pred <-
+  last_lm_fit %>%
+  predict(new_data = df_test) %>%
+  mutate(y_truth = df_test$life_satisfaction)
+
+# Performance measures
+rmse(truth = y_truth, 
+     estimate = .pred, 
+     last_lm_pred) 
+
+glance(last_lm_fit$fit) # more measures
+
+# Make a prediction for a new GDP value
+X_new <-  tibble(gdp_per_capita = c(50000)) # new GDP per capita
+
+
+# print HTML-friendly output with kable()
+
+kable(predict(last_lm_fit, new_data = X_new))
+
+```
+
+
+
 
 
 
