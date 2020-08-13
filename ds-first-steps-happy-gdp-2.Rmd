@@ -1,5 +1,5 @@
 ---
-title: "First steps in Data Science"
+title: "First steps in Data Science, Part II"
 subtitle: "Does money make people happier?"
 author: "Prof. Dr. Jan Kirenz, HdM Stuttgart"
 output:
@@ -94,7 +94,7 @@ ggplot(df, aes(x=gdp_per_capita,
 ```
 
 
-# Data splitting
+# Data splitting & preparation
 
 First, we split the data: 
 
@@ -107,15 +107,13 @@ df_test <- testing(df_split)
 
 ```
 
-# Data preparation
-
 We want to use three different models in this example:
 
 1. simple linear regression.
 2. natural spline in conjunction with a linear model,
-3. K-nearest-neighbour model
+3. K-nearest-neighbour model.
 
-We start with a recipe where we prepare the data for the algorithms:
+We use the package [`recipe`](https://recipes.tidymodels.org) to prepare the data and tune the model hyperparamters. The main idea of the recipes package is to define a recipe ("rec") or blueprint that can be used to sequentially define the encodings and preprocessing of the data (i.e. “feature engineering”):
 
 ```{r}
 
@@ -128,10 +126,23 @@ df_rec <-
 ```
 
 
-# Model selection
+
+# Model selection and training
+
+## K-fold cross-validation
+
+```{r}
+set.seed(123)
+
+cv_folds <- vfold_cv(df_train, v = 5)
+
+```
+
 
 
 ## Linear regression model
+
+Specify the model:
 
 ```{r}
 
@@ -143,8 +154,34 @@ lm_mod <-
 ```
 
 
+Train the model:
 
-## Natural regression splines
+
+```{r}
+
+lm_fit <-
+  lm_mod %>% 
+  fit_resamples(life_satisfaction ~ gdp_per_capita, 
+      resamples = cv_folds)
+
+```
+
+Model summary:
+
+```{r}
+
+# Performance measures for every fold
+collect_metrics(lm_fit, summarize = FALSE)
+
+# Average performance accross all folds
+collect_metrics(lm_fit, summarize = TRUE)
+
+```
+
+
+
+
+## Natural regression spline
 
 Just for our information, we detect and collect the parameters that have been flagged for tuning:
 
@@ -160,10 +197,8 @@ Update parameter objects:
 
 spline_param <-
   df_rec %>%
-  parameters() %>%
-  update(
-    gdp_per_capita = spline_degree()
-  )
+    parameters() %>%
+    update(gdp_per_capita = spline_degree())
 
 spline_degree()
 
@@ -176,11 +211,12 @@ Grid search:
 ```{r}
 
 # Create a grid
-spline_grid <- grid_max_entropy(spline_param, size = 5)
+spline_grid <- grid_max_entropy(spline_param, 
+                                size = 5)
 
 ```
 
-Use a basic linear model:
+Linear regression model:
 
 ```{r}
 
@@ -190,22 +226,31 @@ lm_mod_sp <-
 
 ```
 
+Combine the linear regression model with a natural spline:
 
 ```{r}
 
 spline_res <- 
-  tune_grid(lm_mod_sp, 
-            df_rec, 
-            resamples = cv_folds, 
-            grid = spline_grid)
+  tune_grid(lm_mod_sp, # linear regression
+            df_rec,  # recipe
+            resamples = cv_folds, # k-fold-crossvalidation 
+            grid = spline_grid) # grid search
 
 spline_res
+
+
+```
+
+
+Show the best results according to RMSE:
+
+```{r}
 
 show_best(spline_res, metric = "rmse")
 
 ```
 
-Performance metrics for the first parameter combination:
+As an example, here are the performance metrics for the first parameter combination:
 
 ```{r}
 spline_res$.metrics[[1]]
@@ -239,11 +284,6 @@ Smaller degrees of freedom values correspond to more linear functions, but the g
 autoplot(spline_res, metric = "rmse")
 
 ```
-
-
-
-
-
 
 
 
@@ -345,42 +385,11 @@ With this intrinsically nonlinear model there is less reliance on the nonlinear 
 
 # Model training 
 
-## K-fold cross-validation
-
-```{r}
-set.seed(123)
-
-cv_folds <- vfold_cv(df_train, v = 5)
-
-```
-
-## Simple linear regression
-
-```{r}
-
-lm_fit <- 
-  lm_mod %>% 
-  fit_resamples(life_satisfaction ~ gdp_per_capita, 
-                resamples = cv_folds)
-
-```
-
-Model summary:
-
-```{r}
-
-# Performance measures for every fold
-collect_metrics(lm_fit, summarize = FALSE)
-
-# Average performance accross all folds
-collect_metrics(lm_fit, summarize = TRUE)
-
-```
 
 
 ## Regression spline
 
-We use the package [`recipe`](https://recipes.tidymodels.org) to tune the model hyperparamters of a regression spline: The idea of the recipes package is to define a recipe or blueprint that can be used to sequentially define the encodings and preprocessing of the data (i.e. “feature engineering”).
+
 
 Let`s try different polynomial degrees:
 
