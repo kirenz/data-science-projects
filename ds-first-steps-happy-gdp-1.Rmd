@@ -27,17 +27,14 @@ h1 {
   color: #D0313C;
   font-size: 200%;
   }
-
 h2 {
   color: #D0313C;
   font-size: 150%;
   }
-
 h3 {
   font-size: 120%;
   font-weight: bold;
   }
-
 h4 {
   color: rgb(139, 142, 150);
   font-size: 100%;
@@ -45,7 +42,6 @@ h4 {
   }
 
 ```
-
 
 
 ```{r setup, include=FALSE}
@@ -61,7 +57,7 @@ knitr::opts_chunk$set(
 
 ```{r}
 
-# Load common packages
+# Load packages
 library(tidyverse) # collection of important data science packages
 library(tidymodels)  # collection of packages for modeling and ml
 library(janitor) # data preparation package
@@ -73,7 +69,7 @@ library(kknn) # K-nearest neighbor model
 
 ```{r}
 
-# Load the data from GitHub
+# Import the data from GitHub
 LINK = "https://raw.githubusercontent.com/kirenz/datasets/master/oecd_gdp.csv"
 df <- read_csv(LINK)
 
@@ -100,7 +96,7 @@ ggplot(df, aes(x=gdp_per_capita,
 
 # Model selection
 
-Linear regression model.
+Linear regression model:
 
 ```{r}
 
@@ -122,9 +118,10 @@ lm_fit <-
 
 ```
 
+Model summary:
+
 ```{r}
 
-# Model summary
 tidy(lm_fit)
 
 ```
@@ -133,7 +130,6 @@ tidy(lm_fit)
 
 ```{r}
 
-# Predictions
 lm_pred <-
   lm_fit %>%
   predict(new_data = df) %>%
@@ -145,7 +141,7 @@ head(lm_pred)
 
 # Model evaluation
 
-Root mean squared error.
+Root mean squared error:
 
 ```{r}
 
@@ -155,47 +151,56 @@ rmse(truth = y_truth, # true values
 
 ```
 
+More performance measures:
 
 ```{r}
 
-# Performance measures
 glance(lm_fit$fit) 
 
 ```
 
+Make a prediction for a new GDP value:
+
 ```{r}
 
-# Make a prediction for a new GDP value
-X_new <-  tibble(gdp_per_capita = c(50000)) # new GDP per capita
+# New GDP per capita
+X_new <-  tibble(gdp_per_capita = c(50000)) 
 
+# Predict and print output
 (predict(lm_fit, new_data = X_new))
 
 ```
 
 # Alternative model
 
-## K-nearest neighbor
+K-nearest neighbor:
 
 ```{r}
 
+# Model selection
 knn_mod <- 
   nearest_neighbor(neighbors = 3) %>% 
   set_engine("kknn") %>% 
   set_mode("regression") 
 
+# Model training
 knn_fit <- 
   knn_mod %>% 
   fit(life_satisfaction ~ gdp_per_capita, 
                 data = df)
 
-# Model coefficients
-tidy(knn_fit)
+# Model prediction
+knn_pred <-
+  knn_fit %>%
+  predict(new_data = df) %>%
+  mutate(y_truth = df$life_satisfaction)
 
-```
+# Model evaluation
+rmse(truth = y_truth, # true values
+     estimate = .pred,  # model predictions
+     knn_pred) # data
 
-
-```{r}
-
-
+# Predict and print output
+(predict(knn_fit, new_data = X_new))
 
 ```
