@@ -79,7 +79,6 @@ glimpse(df)
 
 ```
 
-# Data preparation
 
 ```{r fig.width=4, fig.height=4}
 
@@ -95,7 +94,42 @@ ggplot(df, aes(x=gdp_per_capita,
 ```
 
 
+# Data splitting
+
+First, we split the data: 
+
+```{r}
+set.seed(123)
+
+df_split <- initial_split(df) 
+df_train <- training(df_split) 
+df_test <- testing(df_split)
+
+```
+
+# Data preparation
+
+We want to use three different models in this example:
+
+1. simple linear regression.
+2. natural spline in conjunction with a linear model,
+3. K-nearest-neighbour model
+
+We start with a recipe where we prepare the data for the algorithms:
+
+```{r}
+
+df_rec <-
+  recipe(life_satisfaction ~ gdp_per_capita, 
+                data = df_train) %>%
+  step_ns(gdp_per_capita, 
+          deg_free = tune("gdp_per_capita")) # tuning parmeter for model 2
+
+```
+
+
 # Model selection
+
 
 ## Linear regression model
 
@@ -109,28 +143,204 @@ lm_mod <-
 ```
 
 
+
+## Natural regression splines
+
+Just for our information, we detect and collect the parameters that have been flagged for tuning:
+
+```{r}
+
+parameters(df_rec)
+
+```
+
+Update parameter objects:
+
+```{r}
+
+spline_param <-
+  df_rec %>%
+  parameters() %>%
+  update(
+    gdp_per_capita = spline_degree()
+  )
+
+spline_degree()
+
+spline_param
+
+```
+
+Grid search:
+
+```{r}
+
+# Create a grid
+spline_grid <- grid_max_entropy(spline_param, size = 5)
+
+```
+
+Use a basic linear model:
+
+```{r}
+
+lm_mod_sp <- 
+  linear_reg() %>% 
+  set_engine("lm")
+
+```
+
+
+```{r}
+
+spline_res <- 
+  tune_grid(lm_mod_sp, 
+            df_rec, 
+            resamples = cv_folds, 
+            grid = spline_grid)
+
+spline_res
+
+show_best(spline_res, metric = "rmse")
+
+```
+
+Performance metrics for the first parameter combination:
+
+```{r}
+spline_res$.metrics[[1]]
+```
+
+
+Average metric value for each parameter combination
+
+```{r}
+estimates <- collect_metrics(spline_res)
+estimates
+```
+
+The values in the mean column are the averages of the 10 resamples. The best RMSE values corresponded to:
+
+```{r}
+
+rmse_vals <-
+  estimates %>%
+  dplyr::filter(.metric == "rmse") %>%
+  arrange(mean)
+
+rmse_vals
+
+```
+
+Smaller degrees of freedom values correspond to more linear functions, but the grid search indicates that more nonlinearity is better. What was the relationship between these two parameters and RMSE?
+
+```{r}
+
+autoplot(spline_res, metric = "rmse")
+
+```
+
+
+
+
+
+
+
+
 ## K-nearest neighbor
 
+The number of neighbors and the distance weighting function will be optimized:
+
 ```{r}
 
-knn_mod <- 
-  nearest_neighbor(neighbors = 3) %>% 
-  set_engine("kknn") %>% 
-  set_mode("regression") 
+knn_mod <-
+  nearest_neighbor(neighbors = tune(), 
+                   weight_func = tune()) %>%
+  set_engine("kknn") %>%
+  set_mode("regression")
 
 ```
 
 
-# Data splitting
+The easiest approach to optimize the pre-processing and model parameters is to bundle these objects into a workflow:
+
 
 ```{r}
-set.seed(123)
+library(workflows)
 
-df_split <- initial_split(df) 
-df_train <- training(df_split) 
-df_test <- testing(df_split)
+knn_wflow <-
+  workflow() %>%
+  add_model(knn_mod) %>%
+  add_recipe(df_rec)
 
 ```
+
+From this, the parameter set can be used to modify the range and values of parameters being optimized3:
+
+```{r}
+
+knn_param <-
+  knn_wflow %>%
+  parameters() %>%
+    update(
+    gdp_per_capita = spline_degree(c(2, 5)),
+    neighbors = neighbors(c(3, 10)),
+    weight_func = weight_func(values = c("rectangular", 
+                                         "inv", 
+                                         "gaussian", 
+                                         "triangular"))
+  )
+
+```
+
+This parameter collection can be passed to the grid functions via the param_info arguments.
+
+Instead of using grid search, an iterative method called Bayesian optimization can be used. This takes an initial set of results and tries to predict the next tuning parameters to evaluate.
+
+Although no grid is required, the process requires a few additional pieces of information:
+
+* A description of the search space. At a minimum, the would consist of ranges for numeric values and a list of values for categorical tuning parameters.
+
+* An acquisition function that helps score potential tuning parameter values.
+
+* A model for analyzing and making predictions of the best tuning parameter values. A Gaussian Process model is typical and used here.
+
+The code to conduct the search is:
+
+```{r}
+
+ctrl <- control_bayes(verbose = TRUE)
+
+set.seed(8154)
+
+knn_search <- tune_bayes(knn_wflow, 
+                         resamples = cv_folds, 
+                         initial = 5, 
+                         iter = 10,
+                         param_info = knn_param, 
+                         control = ctrl)
+```
+
+Visually, the performance gain was:
+
+```{r}
+
+autoplot(knn_search, type = "performance", metric = "rmse")
+
+```
+
+The best results here were:
+
+```{r}
+
+collect_metrics(knn_search) %>%
+  dplyr::filter(.metric == "rmse") %>%
+  arrange(mean)
+
+```
+
+With this intrinsically nonlinear model there is less reliance on the nonlinear terms created by the recipe.
+
 
 
 # Model training 
@@ -144,7 +354,7 @@ cv_folds <- vfold_cv(df_train, v = 5)
 
 ```
 
-## Linear regression model 1
+## Simple linear regression
 
 ```{r}
 
@@ -168,7 +378,44 @@ collect_metrics(lm_fit, summarize = TRUE)
 ```
 
 
-## Linear regression model 2
+## Regression spline
+
+We use the package [`recipe`](https://recipes.tidymodels.org) to tune the model hyperparamters of a regression spline: The idea of the recipes package is to define a recipe or blueprint that can be used to sequentially define the encodings and preprocessing of the data (i.e. “feature engineering”).
+
+Let`s try different polynomial degrees:
+
+```{r}
+
+# Create a recipe
+lm_2_rec <- 
+  recipe(formula = life_satisfaction  ~ gdp_per_capita, 
+                 data = df) %>% 
+  step_poly(gdp_per_capita, degree = 6) 
+
+# Show recipe
+lm_2_rec
+
+# Prepare recipe
+lm_2_rec <- prep(lm_2_rec)
+
+# Show recipe output
+head(lm_2_rec$template)
+
+
+```
+
+
+```{r}
+
+lm_fit_2 <- 
+  lm_mod %>% 
+  fit(life_satisfaction ~ ., 
+                data = lm_2_rec$template)
+
+```
+
+
+
 
 ```{r}
 
@@ -178,6 +425,8 @@ lm_fit_2 <-
                 resamples = cv_folds)
 
 ```
+
+
 
 Model summary:
 
@@ -190,6 +439,12 @@ collect_metrics(lm_fit, summarize = FALSE)
 collect_metrics(lm_fit, summarize = TRUE)
 
 ```
+
+
+
+
+
+
 
 
 ## K-nearest neighbor
