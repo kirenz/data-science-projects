@@ -27,17 +27,14 @@ h1 {
   color: #D0313C;
   font-size: 200%;
   }
-
 h2 {
   color: #D0313C;
   font-size: 150%;
   }
-
 h3 {
   font-size: 120%;
   font-weight: bold;
   }
-
 h4 {
   color: rgb(139, 142, 150);
   font-size: 100%;
@@ -61,9 +58,9 @@ knitr::opts_chunk$set(
 
 ```{r}
 
-# Common packages
-library(tidyverse) # collection of important packages
-library(tidymodels)  # collection of data science packages
+# Load packages
+library(tidyverse) # collection of important data science packages
+library(tidymodels)  # collection of packages for modeling and ml
 library(janitor) # data preparation package
 library(kknn) # K-nearest neighbor model
 
@@ -157,14 +154,15 @@ lm_fit <-
 
 ```
 
+Model summary:
+
 ```{r}
 
-# Model summary
-lm_fit %>% 
-  collect_metrics(summarize = FALSE)
+# Performance measures for every fold
+collect_metrics(lm_fit, summarize = FALSE)
 
-lm_fit %>% 
-  collect_metrics(summarize = TRUE)
+# Average performance accross all folds
+collect_metrics(lm_fit, summarize = TRUE)
 
 ```
 
@@ -180,23 +178,25 @@ knn_fit <-
 
 ```
 
+Model summary
+
 ```{r}
 
-# Model summary
-knn_fit %>% 
-  collect_metrics(summarize = FALSE)
+# Performance measures for every fold
+collect_metrics(knn_fit, summarize = FALSE)
 
-knn_fit %>% 
-  collect_metrics(summarize = TRUE)
+# Average performance accross all folds
+collect_metrics(knn_fit, summarize = TRUE)
 
 ```
 
 
-# Model testing
+# Train final model
+
+Train best model with all training data:
 
 ```{r}
 
-# Train best model with all training data
 last_lm_fit <- 
   lm_mod %>% 
   fit(life_satisfaction ~ gdp_per_capita, 
@@ -204,17 +204,20 @@ last_lm_fit <-
 
 ```
 
+Model coefficients:
 
 ```{r}
 
-# Model coefficients
 tidy(last_lm_fit)
 
 ```
 
+# Model testing
+
+Predictions:
+
 ```{r}
 
-# Prediction
 last_lm_pred <-
   last_lm_fit %>%
   predict(new_data = df_test) %>%
@@ -222,26 +225,29 @@ last_lm_pred <-
 
 ```
 
+Root mean squared error:
+
 ```{r}
 
-# Performance measures
 rmse(truth = y_truth, 
      estimate = .pred, 
      last_lm_pred) 
 
 ```
 
+More performance measures:
 
 ```{r}
 
-glance(last_lm_fit$fit) # more measures
+glance(last_lm_fit$fit)
 
 ```
 
+Make a prediction for a new GDP value:
+
 ```{r}
 
-# Make a prediction for a new GDP value
-X_new <-  tibble(gdp_per_capita = c(50000)) # new GDP per capita
+X_new <-  tibble(gdp_per_capita = c(50000))
 
 ```
 
