@@ -108,6 +108,7 @@ lm_mod <-
 
 ```
 
+
 ## K-nearest neighbor
 
 ```{r}
@@ -143,13 +144,37 @@ cv_folds <- vfold_cv(df_train, v = 5)
 
 ```
 
-## Linear regression
+## Linear regression model 1
 
 ```{r}
 
 lm_fit <- 
   lm_mod %>% 
   fit_resamples(life_satisfaction ~ gdp_per_capita, 
+                resamples = cv_folds)
+
+```
+
+Model summary:
+
+```{r}
+
+# Performance measures for every fold
+collect_metrics(lm_fit, summarize = FALSE)
+
+# Average performance accross all folds
+collect_metrics(lm_fit, summarize = TRUE)
+
+```
+
+
+## Linear regression model 2
+
+```{r}
+
+lm_fit_2 <- 
+  lm_mod %>% 
+  fit_resamples(life_satisfaction ~ gdp_per_capita + , 
                 resamples = cv_folds)
 
 ```

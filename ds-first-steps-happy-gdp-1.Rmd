@@ -139,6 +139,16 @@ head(lm_pred)
 
 ```
 
+Alternatively, we could use `augment()` to obtain model predictions as well es residuals:
+
+```{r}
+lm_pred_aug <- augment(lm_fit$fit, data = df)
+
+head(lm_pred_aug)
+
+```
+
+
 # Model evaluation
 
 Root mean squared error:
