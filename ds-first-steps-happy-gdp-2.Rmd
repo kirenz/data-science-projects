@@ -113,20 +113,6 @@ We want to use three different models in this example:
 2. natural spline in conjunction with a linear model,
 3. K-nearest-neighbour model.
 
-We use the package [`recipe`](https://recipes.tidymodels.org) to prepare the data and tune the model hyperparamters. The main idea of the recipes package is to define a recipe ("rec") or blueprint that can be used to sequentially define the encodings and preprocessing of the data (i.e. “feature engineering”):
-
-```{r}
-
-df_rec <-
-  recipe(life_satisfaction ~ gdp_per_capita, 
-                data = df_train) %>%
-  step_ns(gdp_per_capita, 
-          deg_free = tune("gdp_per_capita")) # tuning parmeter for model 2
-
-```
-
-
-
 # Model selection and training
 
 ## K-fold cross-validation
@@ -137,7 +123,6 @@ set.seed(123)
 cv_folds <- vfold_cv(df_train, v = 5)
 
 ```
-
 
 
 ## Linear regression model
@@ -153,9 +138,7 @@ lm_mod <-
 
 ```
 
-
 Train the model:
-
 
 ```{r}
 
@@ -179,11 +162,21 @@ collect_metrics(lm_fit, summarize = TRUE)
 ```
 
 
-
-
 ## Natural regression spline
 
-Just for our information, we detect and collect the parameters that have been flagged for tuning:
+We use the package [`recipe`](https://recipes.tidymodels.org) to prepare the data and tune the model hyperparamters. The main idea of the recipes package is to define a recipe ("rec") or blueprint that can be used to sequentially define the encodings and preprocessing of the data (i.e. “feature engineering”):
+
+```{r}
+
+df_rec <-
+  recipe(life_satisfaction ~ gdp_per_capita, 
+                data = df_train) %>%
+  step_ns(gdp_per_capita, 
+          deg_free = tune("gdp_per_capita")) # tuning parmeter for model 2
+
+```
+
+We can use `parameters()`to detect and collect the parameters that have been flagged for tuning:
 
 ```{r}
 
@@ -191,7 +184,7 @@ parameters(df_rec)
 
 ```
 
-Update parameter objects:
+Use `update()` to tune parameter objects:
 
 ```{r}
 
@@ -200,8 +193,7 @@ spline_param <-
     parameters() %>%
     update(gdp_per_capita = spline_degree())
 
-spline_degree()
-
+# Take a look at the tuning parameters
 spline_param
 
 ```
@@ -237,7 +229,6 @@ spline_res <-
             grid = spline_grid) # grid search
 
 spline_res
-
 
 ```
 
@@ -277,14 +268,15 @@ rmse_vals
 
 ```
 
-Smaller degrees of freedom values correspond to more linear functions, but the grid search indicates that more nonlinearity is better. What was the relationship between these two parameters and RMSE?
+Smaller degrees of freedom values correspond to more linear functions, but the grid search indicates that more nonlinearity is better. 
+
+What was the relationship between these two parameters and RMSE?
 
 ```{r}
 
 autoplot(spline_res, metric = "rmse")
 
 ```
-
 
 
 ## K-nearest neighbor
@@ -301,9 +293,7 @@ knn_mod <-
 
 ```
 
-
 The easiest approach to optimize the pre-processing and model parameters is to bundle these objects into a workflow:
-
 
 ```{r}
 library(workflows)
@@ -359,6 +349,7 @@ knn_search <- tune_bayes(knn_wflow,
                          iter = 10,
                          param_info = knn_param, 
                          control = ctrl)
+
 ```
 
 Visually, the performance gain was:
@@ -380,104 +371,6 @@ collect_metrics(knn_search) %>%
 ```
 
 With this intrinsically nonlinear model there is less reliance on the nonlinear terms created by the recipe.
-
-
-
-# Model training 
-
-
-
-## Regression spline
-
-
-
-Let`s try different polynomial degrees:
-
-```{r}
-
-# Create a recipe
-lm_2_rec <- 
-  recipe(formula = life_satisfaction  ~ gdp_per_capita, 
-                 data = df) %>% 
-  step_poly(gdp_per_capita, degree = 6) 
-
-# Show recipe
-lm_2_rec
-
-# Prepare recipe
-lm_2_rec <- prep(lm_2_rec)
-
-# Show recipe output
-head(lm_2_rec$template)
-
-
-```
-
-
-```{r}
-
-lm_fit_2 <- 
-  lm_mod %>% 
-  fit(life_satisfaction ~ ., 
-                data = lm_2_rec$template)
-
-```
-
-
-
-
-```{r}
-
-lm_fit_2 <- 
-  lm_mod %>% 
-  fit_resamples(life_satisfaction ~ gdp_per_capita + , 
-                resamples = cv_folds)
-
-```
-
-
-
-Model summary:
-
-```{r}
-
-# Performance measures for every fold
-collect_metrics(lm_fit, summarize = FALSE)
-
-# Average performance accross all folds
-collect_metrics(lm_fit, summarize = TRUE)
-
-```
-
-
-
-
-
-
-
-
-## K-nearest neighbor
-
-```{r}
-
-knn_fit <- 
-  knn_mod %>% 
-  fit_resamples(life_satisfaction ~ gdp_per_capita, 
-                resamples = cv_folds)
-
-```
-
-Model summary
-
-```{r}
-
-# Performance measures for every fold
-collect_metrics(knn_fit, summarize = FALSE)
-
-# Average performance accross all folds
-collect_metrics(knn_fit, summarize = TRUE)
-
-```
 
 
 # Train final model
