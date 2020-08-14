@@ -1,5 +1,5 @@
 ---
-title: "First steps in Data Science, Part II"
+title: "Data Science Lifecycle"
 subtitle: "Does money make people happier?"
 author: "Prof. Dr. Jan Kirenz, HdM Stuttgart"
 output:
@@ -44,7 +44,6 @@ h4 {
 ```
 
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
 	echo = TRUE,
@@ -56,6 +55,8 @@ knitr::opts_chunk$set(
 
 # Setup
 
+Load packages
+
 ```{r}
 
 # Load packages
@@ -63,10 +64,16 @@ library(tidyverse) # collection of important data science packages
 library(tidymodels)  # collection of packages for modeling and ml
 library(janitor) # data preparation package
 library(kknn) # K-nearest neighbor model
+library(skimr) # to obtain tidy data summaries
+library(corrplot) # to study corrleations
+library(workflows) # to use workflows
+
 
 ```
 
-# Data import
+# Data understanding
+
+## Import data
 
 ```{r}
 
@@ -74,29 +81,23 @@ library(kknn) # K-nearest neighbor model
 LINK = "https://raw.githubusercontent.com/kirenz/datasets/master/oecd_gdp.csv"
 df <- read_csv(LINK)
 
+```
+
+## Data structure
+
+```{r}
+
 # Take a look at the data
 glimpse(df)
 
-```
-
-
-```{r fig.width=4, fig.height=4}
-
 # Change column names
-df <-  clean_names(df)
-
-# Visualize the data
-ggplot(df, aes(x=gdp_per_capita, 
-               y=life_satisfaction)) +
-  geom_point() +
-  theme_classic()
+df <- clean_names(df)
 
 ```
 
+## Data splitting
 
-# Data splitting & preparation
-
-First, we split the data: 
+Create training and test data:
 
 ```{r}
 set.seed(123)
@@ -107,15 +108,111 @@ df_test <- testing(df_split)
 
 ```
 
-We want to use three different models in this example:
+
+## Data exploration
+
+Create a copy of the training data for exploration:
+
+```{r}
+
+df_expl <- df_train
+
+```
+
+
+Study each attribute and its characteristics:
+
+```{r}
+
+# Data overview
+df_expl %>% skimr::skim() 
+
+```
+
+Visualize the data.
+
+Scatterplot:
+
+```{r fig.width=4, fig.height=4}
+
+ggplot(df_expl, aes(x = gdp_per_capita, 
+               y = life_satisfaction)) +
+  geom_point() +
+  theme_classic()
+
+```
+
+Histograms:
+
+```{r fig.width=4, fig.height=4}
+
+ggplot(df_expl, aes(x = gdp_per_capita)) +
+  geom_histogram(bins = 15) +
+  geom_density() +
+  theme_classic()
+
+```
+
+```{r fig.width=4, fig.height=4}
+
+ggplot(df_expl, aes(x = life_satisfaction)) +
+  geom_histogram(bins = 15) +
+  theme_classic()
+
+```
+
+Boxplots:
+
+```{r fig.width=4, fig.height=4}
+
+ggplot(df_expl, aes(x = "", y = gdp_per_capita)) +
+  geom_boxplot() +
+  theme_classic()
+
+```
+
+
+```{r fig.width=4, fig.height=4}
+
+ggplot(df_expl, aes(x = "", y = life_satisfaction)) +
+  geom_boxplot() +
+  theme_classic()
+
+```
+
+
+Study correlations:
+
+```{r}
+cor <- 
+  df_expl %>% 
+  select(-country) %>% 
+  cor()
+
+cor
+
+corrplot(cor, type = "upper")
+
+cor.test(df_expl$gdp_per_capita, df_expl$life_satisfaction, 
+         method = "pearson")
+
+```
+
+# Data preparation
+
+Not necessary in this example.
+
+# Modeling
+
+We want to use three different regression models:
 
 1. simple linear regression.
-2. natural spline in conjunction with a linear model,
+2. natural spline in conjunction with a linear regression model,
 3. K-nearest-neighbour model.
 
-# Model selection and training
+## K-fold crossvalidation
 
-## K-fold cross-validation
+We use k-fold cross-validation to identify the best model:
 
 ```{r}
 set.seed(123)
@@ -123,7 +220,6 @@ set.seed(123)
 cv_folds <- vfold_cv(df_train, v = 5)
 
 ```
-
 
 ## Linear regression model
 
@@ -138,7 +234,7 @@ lm_mod <-
 
 ```
 
-Train the model:
+Train the model with k-fold cross-validation:
 
 ```{r}
 
@@ -149,7 +245,7 @@ lm_fit <-
 
 ```
 
-Model summary:
+Obtain model summary:
 
 ```{r}
 
@@ -161,54 +257,57 @@ collect_metrics(lm_fit, summarize = TRUE)
 
 ```
 
+Visualize the model:
+
+```{r}
+
+ggplot(df_train, aes(gdp_per_capita, life_satisfaction)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = T) +
+  theme_classic()
+
+```
+
+
+
 
 ## Natural regression spline
 
-We use the package [`recipe`](https://recipes.tidymodels.org) to prepare the data and tune the model hyperparamters. The main idea of the recipes package is to define a recipe ("rec") or blueprint that can be used to sequentially define the encodings and preprocessing of the data (i.e. “feature engineering”):
+We use the package [`recipe`](https://recipes.tidymodels.org) to prepare the data and tune the model hyperparamters:
 
 ```{r}
 
-df_rec <-
+spline_rec <-
   recipe(life_satisfaction ~ gdp_per_capita, 
                 data = df_train) %>%
   step_ns(gdp_per_capita, 
-          deg_free = tune("gdp_per_capita")) # tuning parmeter for model 2
+          deg_free = tune("gdp_per_capita")) 
 
 ```
 
-We can use `parameters()`to detect and collect the parameters that have been flagged for tuning:
+Note that we can use `parameters()` to detect and collect the parameters that have been flagged for tuning:
 
 ```{r}
 
-parameters(df_rec)
+parameters(spline_rec)
 
 ```
 
-Use `update()` to tune parameter objects:
+We use `update()` to tune the parameter objects:
 
 ```{r}
 
 spline_param <-
-  df_rec %>%
+  spline_rec %>%
     parameters() %>%
     update(gdp_per_capita = spline_degree())
 
-# Take a look at the tuning parameters
-spline_param
+# Take a look at the tuning parameter
+spline_degree()
 
 ```
 
-Grid search:
-
-```{r}
-
-# Create a grid
-spline_grid <- grid_max_entropy(spline_param, 
-                                size = 5)
-
-```
-
-Linear regression model:
+Specify the linear regression model:
 
 ```{r}
 
@@ -218,44 +317,55 @@ lm_mod_sp <-
 
 ```
 
-Combine the linear regression model with a natural spline:
+We use grid search ([`grid_max_entropy`](https://dials.tidymodels.org/reference/grid_max_entropy.html)) to test different spline hyperparameters:
 
 ```{r}
 
-spline_res <- 
-  tune_grid(lm_mod_sp, # linear regression
-            df_rec,  # recipe
-            resamples = cv_folds, # k-fold-crossvalidation 
-            grid = spline_grid) # grid search
-
-spline_res
+spline_grid <- grid_max_entropy(spline_param, 
+                                size = 5)
 
 ```
 
+Combine the linear regression model with the natural spline:
+
+```{r}
+
+spline_fit <- 
+  tune_grid(lm_mod_sp, # linear regression model
+            spline_rec,  # our recipe
+            resamples = cv_folds, # k-fold cross-validation 
+            grid = spline_grid) # grid search with spline parameters
+
+spline_fit
+
+```
 
 Show the best results according to RMSE:
 
 ```{r}
 
-show_best(spline_res, metric = "rmse")
+show_best(spline_fit, metric = "rmse")
 
 ```
 
-As an example, here are the performance metrics for the first parameter combination:
+The `.metrics` column has all of the holdout performance estimates for each parameter value. (However, we are usually only interested in the average metric values - see below):
 
 ```{r}
-spline_res$.metrics[[1]]
+
+spline_fit$.metrics[[1]]
+
 ```
 
-
-Average metric value for each parameter combination
+To get the average metric value for each parameter combination, `collect_metrics()` can be put to use. The values in the mean column are the averages of the k-fold resamples: 
 
 ```{r}
-estimates <- collect_metrics(spline_res)
+
+estimates <- collect_metrics(spline_fit)
 estimates
+
 ```
 
-The values in the mean column are the averages of the 10 resamples. The best RMSE values corresponded to:
+The best RMSE values corresponded to:
 
 ```{r}
 
@@ -268,18 +378,28 @@ rmse_vals
 
 ```
 
-Smaller degrees of freedom values correspond to more linear functions, but the grid search indicates that more nonlinearity is better. 
+Smaller degrees of freedom values correspond to more linear functions and the grid search indicates that more linearity is better. 
 
-What was the relationship between these two parameters and RMSE?
+Relationship between the hyperparameter and RMSE:
 
 ```{r}
 
-autoplot(spline_res, metric = "rmse")
+autoplot(spline_fit, metric = "rmse")
 
 ```
 
 
 ## K-nearest neighbor
+
+Recipe:
+
+```{r}
+
+knn_rec <- 
+  recipe(life_satisfaction ~ gdp_per_capita, 
+      data = df_train)
+
+```
 
 The number of neighbors and the distance weighting function will be optimized:
 
@@ -293,19 +413,18 @@ knn_mod <-
 
 ```
 
-The easiest approach to optimize the pre-processing and model parameters is to bundle these objects into a workflow:
+Combine all steps in one workflow:
 
 ```{r}
-library(workflows)
 
 knn_wflow <-
   workflow() %>%
   add_model(knn_mod) %>%
-  add_recipe(df_rec)
+  add_recipe(knn_rec)
 
 ```
 
-From this, the parameter set can be used to modify the range and values of parameters being optimized3:
+From this, the parameter set can be used to modify the range and values of parameters being optimized:
 
 ```{r}
 
@@ -313,7 +432,6 @@ knn_param <-
   knn_wflow %>%
   parameters() %>%
     update(
-    gdp_per_capita = spline_degree(c(2, 5)),
     neighbors = neighbors(c(3, 10)),
     weight_func = weight_func(values = c("rectangular", 
                                          "inv", 
@@ -323,13 +441,13 @@ knn_param <-
 
 ```
 
-This parameter collection can be passed to the grid functions via the param_info arguments.
+This parameter collection can be passed to the grid functions via the `param_info` arguments.
 
-Instead of using grid search, an iterative method called Bayesian optimization can be used. This takes an initial set of results and tries to predict the next tuning parameters to evaluate.
+Instead of using grid search, an iterative method called *Bayesian optimization* can be used. This takes an initial set of results and tries to predict the next tuning parameters to evaluate.
 
-Although no grid is required, the process requires a few additional pieces of information:
+Although no grid is required, the process requires a few additional pieces of information ([tidymodels documentation](https://tune.tidymodels.org/articles/getting_started.html#fnref2):
 
-* A description of the search space. At a minimum, the would consist of ranges for numeric values and a list of values for categorical tuning parameters.
+* A description of the search space. At a minimum, that would consist of ranges for numeric values and a list of values for categorical tuning parameters.
 
 * An acquisition function that helps score potential tuning parameter values.
 
@@ -341,12 +459,12 @@ The code to conduct the search is:
 
 ctrl <- control_bayes(verbose = TRUE)
 
-set.seed(8154)
+set.seed(123)
 
 knn_search <- tune_bayes(knn_wflow, 
                          resamples = cv_folds, 
                          initial = 5, 
-                         iter = 10,
+                         iter = 4, # usually we would use more iterations
                          param_info = knn_param, 
                          control = ctrl)
 
@@ -370,58 +488,179 @@ collect_metrics(knn_search) %>%
 
 ```
 
-With this intrinsically nonlinear model there is less reliance on the nonlinear terms created by the recipe.
+Best KNN model:
+
+```{r}
+
+knn_mod_bnest <-
+  nearest_neighbor(neighbors = 5, 
+                   weight_func = "triangular") %>%
+  set_engine("kknn") %>%
+  set_mode("regression")
+
+knn_mod_best_fit <-
+  knn_mod_bnest %>% 
+  fit(life_satisfaction ~ gdp_per_capita, 
+      data = df_train)
+
+knn_mod_best_fit 
+
+```
+
 
 
 # Train final model
 
-Train best model with all training data:
+Final recipe for our model with the lowest RMSE:
 
 ```{r}
 
-last_lm_fit <- 
-  lm_mod %>% 
-  fit(life_satisfaction ~ gdp_per_capita, 
-                data = df_train)
+spline_rec_last <-
+  recipe(life_satisfaction ~ gdp_per_capita, 
+                data = df_train) %>%
+  step_ns(gdp_per_capita, 
+          deg_free = 3)  
 
 ```
 
-Model coefficients:
+Now, we have two options to fit the final model: without and with a workflow.
+
+## Fit without workflow
+
+
+We can use the function last_fit() with our finalized model; this function first fits the finalized model on the full training data set and evaluates the finalized model on the testing data.
+
 
 ```{r}
 
-tidy(last_lm_fit)
+spline_final <- last_fit(lm_mod_sp, 
+                         spline_rec_last, 
+                         split = df_split)
 
 ```
 
-# Model testing
+Performance measures:
+
+```{r}
+
+collect_metrics(spline_final)
+
+```
+
+
+```{r}
+
+spline_final$.predictions
+  
+
+tidy(spline_final)
+
+```
+
+
+## Fit with workflow
+
+```{r}
+
+spline_wflow_last <- 
+  workflow() %>% 
+  add_recipe(spline_rec_last) %>% 
+  add_model(lm_mod_sp) 
+
+```
+
+Last fit
+
+```{r}
+
+spline_res <- 
+  last_fit(spline_wflow_last,
+         split = df_split)
+
+spline_res
+
+```
+
+
+Test set results:
+
+```{r}
+
+spline_res$.metrics[[1]]
+
+```
+
+Show workflow and coefficients:
+
+```{r}
+
+spline_res$.workflow
+
+```
 
 Predictions:
 
 ```{r}
 
-last_lm_pred <-
-  last_lm_fit %>%
-  predict(new_data = df_test) %>%
-  mutate(y_truth = df_test$life_satisfaction)
+spline_res$.predictions
 
 ```
 
-Root mean squared error:
+You can also extract the test set predictions: 
+
+```{r}
+spline_res %>% collect_predictions()
+```
+
+Visualize the model:
 
 ```{r}
 
-rmse(truth = y_truth, 
-     estimate = .pred, 
-     last_lm_pred) 
+ggplot(df_train, aes(gdp_per_capita, life_satisfaction)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", 
+              formula = y ~ splines::bs(x, 3), se = F) +
+  theme_classic()
 
 ```
 
-More performance measures:
+
+# Evaluation
+
+Check whether your solution achieves the business objective.
+
+
+# Production
+
+> Fitting and using the final model
+
+The previous code evaluated the model trained on the training data using the testing data. But once you’ve determined your final model, you often want to train it on your full dataset and then use it to predict the response for new data.
+
 
 ```{r}
 
-glance(last_lm_fit$fit)
+final_model <- fit(spline_wflow_last, df)
+
+```
+
+
+```{r}
+
+final_model
+
+```
+
+
+Visualize our final model:
+
+```{r}
+
+
+ggplot(df, aes(gdp_per_capita, life_satisfaction)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", 
+              formula = y ~ splines::bs(x, 3), se = F) +
+  theme_classic()
 
 ```
 
@@ -431,11 +670,10 @@ Make a prediction for a new GDP value:
 
 X_new <-  tibble(gdp_per_capita = c(50000))
 
-```
-
-```{r}
-
-(predict(last_lm_fit, new_data = X_new))
+(predict(final_model, new_data = X_new))
 
 ```
+
+
+
 
