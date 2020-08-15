@@ -66,8 +66,7 @@ library(janitor) # data preparation package
 library(kknn) # K-nearest neighbor model
 library(skimr) # to obtain tidy data summaries
 library(corrplot) # to study corrleations
-library(workflows) # to use workflows
-
+library(workflows) # to create workflows
 
 ```
 
@@ -111,6 +110,8 @@ df_test <- testing(df_split)
 
 ## Data exploration
 
+### Copy data
+
 Create a copy of the training data for exploration:
 
 ```{r}
@@ -119,15 +120,18 @@ df_expl <- df_train
 
 ```
 
+### Study attributes
 
-Study each attribute and its characteristics:
+Study each attribute and it's characteristics:
 
 ```{r}
 
 # Data overview
-df_expl %>% skimr::skim() 
+df_expl %>% skim() 
 
 ```
+
+### Visualize data
 
 Visualize the data.
 
@@ -142,7 +146,7 @@ ggplot(df_expl, aes(x = gdp_per_capita,
 
 ```
 
-Histograms:
+Histogram:
 
 ```{r fig.width=4, fig.height=4}
 
@@ -161,7 +165,7 @@ ggplot(df_expl, aes(x = life_satisfaction)) +
 
 ```
 
-Boxplots:
+Boxplot:
 
 ```{r fig.width=4, fig.height=4}
 
@@ -181,7 +185,9 @@ ggplot(df_expl, aes(x = "", y = life_satisfaction)) +
 ```
 
 
-Study correlations:
+### Correlations
+
+Study correlations.
 
 ```{r}
 cor <- 
@@ -191,16 +197,29 @@ cor <-
 
 cor
 
+```
+
+Correlation plot:
+
+```{r}
+
 corrplot(cor, type = "upper")
+
+```
+
+Correlation's with statistical significance:
+
+```{r}
 
 cor.test(df_expl$gdp_per_capita, df_expl$life_satisfaction, 
          method = "pearson")
 
 ```
 
+
 # Data preparation
 
-Not necessary in this example.
+We don't cover this topic (feature engineering) in this example.  
 
 # Modeling
 
@@ -209,6 +228,7 @@ We want to use three different regression models:
 1. simple linear regression.
 2. natural spline in conjunction with a linear regression model,
 3. K-nearest-neighbour model.
+
 
 ## K-fold crossvalidation
 
@@ -223,6 +243,8 @@ cv_folds <- vfold_cv(df_train, v = 5)
 
 ## Linear regression model
 
+### Specify model
+
 Specify the model:
 
 ```{r}
@@ -234,6 +256,8 @@ lm_mod <-
 
 ```
 
+### Train model
+
 Train the model with k-fold cross-validation:
 
 ```{r}
@@ -244,6 +268,9 @@ lm_fit <-
       resamples = cv_folds)
 
 ```
+
+
+### Model evaluation
 
 Obtain model summary:
 
@@ -257,13 +284,15 @@ collect_metrics(lm_fit, summarize = TRUE)
 
 ```
 
+### Plot model
+
 Visualize the model:
 
 ```{r}
 
 ggplot(df_train, aes(gdp_per_capita, life_satisfaction)) + 
   geom_point() + 
-  geom_smooth(method = "lm", se = T) +
+  geom_smooth(method = "lm", se = F) +
   theme_classic()
 
 ```
@@ -273,7 +302,20 @@ ggplot(df_train, aes(gdp_per_capita, life_satisfaction)) +
 
 ## Natural regression spline
 
-We use the package [`recipe`](https://recipes.tidymodels.org) to prepare the data and tune the model hyperparamters:
+### Specify model
+
+Specify the linear regression model:
+
+```{r}
+
+lm_mod_sp <- 
+  linear_reg() %>% 
+  set_engine("lm")
+
+```
+
+
+We use the package [`recipe`](https://recipes.tidymodels.org) to prepare the data and tune the natural spline's (`step_ns`) hyperparameters: degrees of freedom (`deg_free`):
 
 ```{r}
 
@@ -284,6 +326,8 @@ spline_rec <-
           deg_free = tune("gdp_per_capita")) 
 
 ```
+
+### Tuning
 
 Note that we can use `parameters()` to detect and collect the parameters that have been flagged for tuning:
 
@@ -307,15 +351,7 @@ spline_degree()
 
 ```
 
-Specify the linear regression model:
-
-```{r}
-
-lm_mod_sp <- 
-  linear_reg() %>% 
-  set_engine("lm")
-
-```
+### Train models
 
 We use grid search ([`grid_max_entropy`](https://dials.tidymodels.org/reference/grid_max_entropy.html)) to test different spline hyperparameters:
 
@@ -339,6 +375,8 @@ spline_fit <-
 spline_fit
 
 ```
+
+### Model evaluation
 
 Show the best results according to RMSE:
 
@@ -391,6 +429,8 @@ autoplot(spline_fit, metric = "rmse")
 
 ## K-nearest neighbor
 
+### Specify model
+
 Recipe:
 
 ```{r}
@@ -401,7 +441,9 @@ knn_rec <-
 
 ```
 
-The number of neighbors and the distance weighting function will be optimized:
+### Training and tuning
+
+The number of neighbors and the distance weighting function are hyperparameters and will be optimized:
 
 ```{r}
 
@@ -441,6 +483,9 @@ knn_param <-
 
 ```
 
+
+### Training and tuning (Bayesian optimization)
+
 This parameter collection can be passed to the grid functions via the `param_info` arguments.
 
 Instead of using grid search, an iterative method called *Bayesian optimization* can be used. This takes an initial set of results and tries to predict the next tuning parameters to evaluate.
@@ -469,6 +514,8 @@ knn_search <- tune_bayes(knn_wflow,
                          control = ctrl)
 
 ```
+
+### Model evaluation
 
 Visually, the performance gain was:
 
@@ -527,7 +574,6 @@ Now, we have two options to fit the final model: without and with a workflow.
 
 ## Fit without workflow
 
-
 We can use the function last_fit() with our finalized model; this function first fits the finalized model on the full training data set and evaluates the finalized model on the testing data.
 
 
@@ -547,13 +593,11 @@ collect_metrics(spline_final)
 
 ```
 
+Predictions:
 
 ```{r}
 
 spline_final$.predictions
-  
-
-tidy(spline_final)
 
 ```
 
@@ -569,7 +613,7 @@ spline_wflow_last <-
 
 ```
 
-Last fit
+Last fit:
 
 ```{r}
 
@@ -609,7 +653,9 @@ spline_res$.predictions
 You can also extract the test set predictions: 
 
 ```{r}
+
 spline_res %>% collect_predictions()
+
 ```
 
 Visualize the model:
@@ -634,8 +680,11 @@ Check whether your solution achieves the business objective.
 
 > Fitting and using the final model
 
-The previous code evaluated the model trained on the training data using the testing data. But once you’ve determined your final model, you often want to train it on your full dataset and then use it to predict the response for new data.
+The previous code evaluated the final model trained on the training data using the testing data. But once you’ve determined your final model, you often want to train it on your full dataset and then use it to predict the response for new data.
 
+## Train final model
+
+Train final model for production:
 
 ```{r}
 
@@ -643,6 +692,7 @@ final_model <- fit(spline_wflow_last, df)
 
 ```
 
+Take a look at the model
 
 ```{r}
 
@@ -650,11 +700,20 @@ final_model
 
 ```
 
+Extract model (especially helpful if we use a workflow):
+
+```{r}
+
+model <- extract_model(final_model)
+
+```
+
+
+## Plot final model
 
 Visualize our final model:
 
 ```{r}
-
 
 ggplot(df, aes(gdp_per_capita, life_satisfaction)) + 
   geom_point() + 
@@ -663,6 +722,8 @@ ggplot(df, aes(gdp_per_capita, life_satisfaction)) +
   theme_classic()
 
 ```
+
+## Prediction
 
 Make a prediction for a new GDP value:
 
