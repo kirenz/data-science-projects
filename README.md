@@ -9,17 +9,23 @@ This repository contains examples of data science projects. Most of the projects
 
 ---
 
-### Does money make people happier?
+### Does money make people happier (intro)?
 
-* [Presentation](https://docs.google.com/presentation/d/1g7wgZO_OaiFChKNxSazELcz7ylIlJViQpYh2chLxjdE/edit?usp=sharing)
+Make your first steps in data science (simplified process):
 
-*Make your first steps in data science (simplified process):*
+* [First steps in Data Science](https://docs.google.com/presentation/d/1g7wgZO_OaiFChKNxSazELcz7ylIlJViQpYh2chLxjdE/edit?usp=sharing)
 
 * [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb) *(Python code)*
 
 * [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](http://htmlpreview.github.io/?https://github.com/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp-1.html) *(R code)*
 
-*Complete data science lifecycle:*
+---
+
+### Does money make people happier (extended)?
+
+Complete data science lifecycle:
+
+* [Main Challenges in Data Science](https://docs.google.com/presentation/d/1jAuv3ckKE_b1kTkpfDIIQ88LS4r7cHMBo57hBpzenEc/edit?usp=sharing)
 
 * [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](http://htmlpreview.github.io/?https://github.com/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp-2.html) *(R code)*
 
