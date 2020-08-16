@@ -9,7 +9,7 @@ This repository contains examples of data science projects with Python and R cod
 
 ---
 
-### Does money make people happier (intro)?
+### 1. Does money make people happier (intro)?
 
 Make your first steps in data science (simplified process):
 
@@ -21,7 +21,7 @@ Make your first steps in data science (simplified process):
 
 ---
 
-### Does money make people happier (extended)?
+### 2.Does money make people happier (extended)?
 
 Complete data science lifecycle:
 
@@ -31,7 +31,7 @@ Complete data science lifecycle:
 
 ---
 
-### Predict housing prices
+### 3. Predict housing prices
 
 * [Presentation](https://docs.google.com/presentation/d/1LXZTBUupzfc8XR1xR98194MAQvdKb4cbYvqOcOrs62A/edit#slide=id.p)
 
