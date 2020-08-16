@@ -11,14 +11,21 @@ This repository contains examples of data science projects. Most of the projects
 
 ### Does money make people happier?
 
-Make your first steps in Data Science.
+Make your first steps in data science.
 
 
 * [Presentation](https://docs.google.com/presentation/d/1g7wgZO_OaiFChKNxSazELcz7ylIlJViQpYh2chLxjdE/edit?usp=sharing)
 
+Simplified process:
+
 * [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb)
 
-* [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](http://htmlpreview.github.io/?https://github.com/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.html)
+* [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](http://htmlpreview.github.io/?https://github.com/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp-1.html)
+
+Complete data science lifecycle:
+
+
+* [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](http://htmlpreview.github.io/?https://github.com/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp-2.html)
 
 ---
 
