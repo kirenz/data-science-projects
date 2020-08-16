@@ -13,16 +13,15 @@ This repository contains examples of data science projects. Most of the projects
 
 * [Presentation](https://docs.google.com/presentation/d/1g7wgZO_OaiFChKNxSazELcz7ylIlJViQpYh2chLxjdE/edit?usp=sharing)
 
-*Make your first steps in data science (simplified process):*
+**Make your first steps in data science (simplified process):**
 
-  * [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb)
+* [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb)
 
-  * [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](http://htmlpreview.github.io/?https://github.com/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp-1.html)
+* [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](http://htmlpreview.github.io/?https://github.com/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp-1.html)
 
-*Complete data science lifecycle:*
+**Complete data science lifecycle:**
 
-
-  * [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](http://htmlpreview.github.io/?https://github.com/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp-2.html)
+* [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](http://htmlpreview.github.io/?https://github.com/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp-2.html)
 
 ---
 
