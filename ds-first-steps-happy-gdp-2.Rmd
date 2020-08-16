@@ -70,14 +70,26 @@ library(workflows) # to create workflows
 
 ```
 
+# Business understanding
+
+Not covered in detail in this notebook. Here are the main points:
+
+* We want a model that predicts life satisfaction of a country as a numerical value.
+* We are only able to use GDP per capita as a predictor variable.
+* We measure model performance with RMSE.
+
 # Data understanding
 
 ## Import data
 
+Load the data from GitHub
+
 ```{r}
 
-# Load the data from GitHub
+# Create the link
 LINK = "https://raw.githubusercontent.com/kirenz/datasets/master/oecd_gdp.csv"
+
+# Import data
 df <- read_csv(LINK)
 
 ```
@@ -91,6 +103,8 @@ glimpse(df)
 
 # Change column names
 df <- clean_names(df)
+
+glimpse(df)
 
 ```
 
@@ -187,7 +201,7 @@ ggplot(df_expl, aes(x = "", y = life_satisfaction)) +
 
 ### Correlations
 
-Study correlations.
+Study correlations:
 
 ```{r}
 cor <- 
@@ -207,7 +221,7 @@ corrplot(cor, type = "upper")
 
 ```
 
-Correlation's with statistical significance:
+Correlations with statistical significance:
 
 ```{r}
 
@@ -229,10 +243,11 @@ We want to use three different regression models:
 2. natural spline in conjunction with a linear regression model,
 3. K-nearest-neighbour model.
 
+We use k-fold cross-validation to identify the best model.
 
-## K-fold crossvalidation
+## K-fold cross-validation
 
-We use k-fold cross-validation to identify the best model:
+Prepare 5-fold cross-validation:
 
 ```{r}
 set.seed(123)
@@ -315,7 +330,7 @@ lm_mod_sp <-
 ```
 
 
-We use the package [`recipe`](https://recipes.tidymodels.org) to prepare the data and tune the natural spline's (`step_ns`) hyperparameters: degrees of freedom (`deg_free`):
+We use the package [`recipe`](https://recipes.tidymodels.org) to prepare the data and tune the hyperparameter of the natural spline (`step_ns`): degrees of freedom (`deg_free`):
 
 ```{r}
 
@@ -372,8 +387,6 @@ spline_fit <-
             resamples = cv_folds, # k-fold cross-validation 
             grid = spline_grid) # grid search with spline parameters
 
-spline_fit
-
 ```
 
 ### Model evaluation
@@ -386,7 +399,7 @@ show_best(spline_fit, metric = "rmse")
 
 ```
 
-The `.metrics` column has all of the holdout performance estimates for each parameter value. (However, we are usually only interested in the average metric values - see below):
+The `.metrics` column has all of the holdout performance estimates for each parameter value:
 
 ```{r}
 
@@ -394,7 +407,7 @@ spline_fit$.metrics[[1]]
 
 ```
 
-To get the average metric value for each parameter combination, `collect_metrics()` can be put to use. The values in the mean column are the averages of the k-fold resamples: 
+To get the average metric value for each parameter combination, `collect_metrics()` can be used. The values in the *mean* column are the averages of the k-fold resamples: 
 
 ```{r}
 
@@ -441,7 +454,6 @@ knn_rec <-
 
 ```
 
-### Training and tuning
 
 The number of neighbors and the distance weighting function are hyperparameters and will be optimized:
 
@@ -466,6 +478,9 @@ knn_wflow <-
 
 ```
 
+### Training and tuning 
+
+
 From this, the parameter set can be used to modify the range and values of parameters being optimized:
 
 ```{r}
@@ -483,10 +498,9 @@ knn_param <-
 
 ```
 
-
-### Training and tuning (Bayesian optimization)
-
 This parameter collection can be passed to the grid functions via the `param_info` arguments.
+
+#### Bayesian optimization
 
 Instead of using grid search, an iterative method called *Bayesian optimization* can be used. This takes an initial set of results and tries to predict the next tuning parameters to evaluate.
 
@@ -509,11 +523,14 @@ set.seed(123)
 knn_search <- tune_bayes(knn_wflow, 
                          resamples = cv_folds, 
                          initial = 5, 
-                         iter = 4, # usually we would use more iterations
+                         iter = 4, 
                          param_info = knn_param, 
                          control = ctrl)
 
 ```
+
+
+Note that we set `iter = 4` relatively low due to performanace reasons. Usually, we would use a higher number of iterations (e.g., 10). 
 
 ### Model evaluation
 
@@ -521,7 +538,9 @@ Visually, the performance gain was:
 
 ```{r}
 
-autoplot(knn_search, type = "performance", metric = "rmse")
+autoplot(knn_search, 
+         type = "performance", 
+         metric = "rmse")
 
 ```
 
@@ -530,7 +549,7 @@ The best results here were:
 ```{r}
 
 collect_metrics(knn_search) %>%
-  dplyr::filter(.metric == "rmse") %>%
+  filter(.metric == "rmse") %>%
   arrange(mean)
 
 ```
@@ -572,9 +591,9 @@ spline_rec_last <-
 
 Now, we have two options to fit the final model: without and with a workflow.
 
-## Fit without workflow
+## Train without workflow
 
-We can use the function last_fit() with our finalized model; this function first fits the finalized model on the full training data set and evaluates the finalized model on the testing data.
+We can use the function `last_fit()` with our finalized model; this function first fits the finalized model on the full training data and evaluates the finalized model on the testing data.
 
 
 ```{r}
@@ -601,8 +620,9 @@ spline_final$.predictions
 
 ```
 
+Instead of using this procedere, we could also use a workflow.
 
-## Fit with workflow
+## Train with workflow
 
 ```{r}
 
@@ -620,8 +640,6 @@ Last fit:
 spline_res <- 
   last_fit(spline_wflow_last,
          split = df_split)
-
-spline_res
 
 ```
 
@@ -673,18 +691,18 @@ ggplot(df_train, aes(gdp_per_capita, life_satisfaction)) +
 
 # Evaluation
 
-Check whether your solution achieves the business objective.
+In this phase we would check whether our solution achieves the business objective. If this is the case, we can proceed to the last step of the data science lifecylce: deployment.
 
 
-# Production
+# Deplyoment
 
 > Fitting and using the final model
 
-The previous code evaluated the final model trained on the training data using the testing data. But once you’ve determined your final model, you often want to train it on your full dataset and then use it to predict the response for new data.
+The code in the previous chapter evaluated the final model trained on the training data using the testing data. Once we’ve determined the final model, we can train it on the full dataset and then use it to predict the response for new data.
 
 ## Train final model
 
-Train final model for production:
+Train final model for deployment:
 
 ```{r}
 
@@ -692,7 +710,7 @@ final_model <- fit(spline_wflow_last, df)
 
 ```
 
-Take a look at the model
+Take a look at the model:
 
 ```{r}
 
@@ -700,16 +718,6 @@ final_model
 
 ```
 
-Extract model (especially helpful if we use a workflow):
-
-```{r}
-
-model <- extract_model(final_model)
-
-```
-
-
-## Plot final model
 
 Visualize our final model:
 
@@ -723,9 +731,21 @@ ggplot(df, aes(gdp_per_capita, life_satisfaction)) +
 
 ```
 
+Extract model (especially helpful if we use a workflow):
+
+```{r}
+
+model <- extract_model(final_model)
+
+```
+
+Now you are able to deploy the final model in your production infrastructure (e.g., as a web service).
+
+
+
 ## Prediction
 
-Make a prediction for a new GDP value:
+Make a prediction for a new GDP value with the final model:
 
 ```{r}
 
