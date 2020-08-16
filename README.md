@@ -15,9 +15,9 @@ This repository contains examples of data science projects. Most of the projects
 
 **Make your first steps in data science (simplified process):**
 
-* Python code: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb)
+* [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp.ipynb) (Python code)
 
-* R code: [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](http://htmlpreview.github.io/?https://github.com/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp-1.html)
+* [<img src="https://www.r-project.org/logo/Rlogo.svg" width="5%">](http://htmlpreview.github.io/?https://github.com/kirenz/data-science-projects/blob/master/ds-first-steps-happy-gdp-1.html) (R code)
 
 **Complete data science lifecycle:**
 
@@ -29,7 +29,7 @@ This repository contains examples of data science projects. Most of the projects
 
 * [Presentation](https://docs.google.com/presentation/d/1LXZTBUupzfc8XR1xR98194MAQvdKb4cbYvqOcOrs62A/edit#slide=id.p)
 
-* [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-housing.ipynb)
+* [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kirenz/data-science-projects/blob/master/ds-housing.ipynb) (Python code)
 
 ---
 
