@@ -3081,31 +3081,40 @@ h4 {
 {"columns":[{"label":[".pred"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["y_truth"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"5.297789","2":"6.0"},{"1":"5.316574","2":"5.6"},{"1":"5.454221","2":"4.9"},{"1":"5.466767","2":"5.8"},{"1":"5.638494","2":"6.1"},{"1":"5.702165","2":"5.6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<p>Alternatively, we could use <code>augment()</code> to obtain model predictions as well es residuals:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>lm_pred_aug &lt;-<span class="st"> </span><span class="kw">augment</span>(lm_fit<span class="op">$</span>fit, <span class="dt">data =</span> df)</span>
+<span id="cb9-2"><a href="#cb9-2"></a></span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="kw">head</span>(lm_pred_aug)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["country"],"name":[1],"type":["chr"],"align":["left"]},{"label":["gdp_per_capita"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["life_satisfaction"],"name":[3],"type":["dbl"],"align":["right"]},{"label":[".fitted"],"name":[4],"type":["dbl"],"align":["right"]},{"label":[".se.fit"],"name":[5],"type":["dbl"],"align":["right"]},{"label":[".resid"],"name":[6],"type":["dbl"],"align":["right"]},{"label":[".hat"],"name":[7],"type":["dbl"],"align":["right"]},{"label":[".sigma"],"name":[8],"type":["dbl"],"align":["right"]},{"label":[".cooksd"],"name":[9],"type":["dbl"],"align":["right"]},{"label":[".std.resid"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Russia","2":"9054.914","3":"6.0","4":"5.297789","5":"0.1607121","6":"0.7022111","7":"0.13304042","8":"0.4239462","9":"0.224790480","10":"1.7116366"},{"1":"Turkey","2":"9437.372","3":"5.6","4":"5.316574","5":"0.1588449","6":"0.2834265","7":"0.12996706","8":"0.4450337","9":"0.035522160","10":"0.6896296"},{"1":"Hungary","2":"12239.894","3":"4.9","4":"5.454221","5":"0.1454233","6":"-0.5542207","7":"0.10893180","8":"0.4339908","9":"0.108531268","10":"-1.3325103"},{"1":"Poland","2":"12495.334","3":"5.8","4":"5.466767","5":"0.1442254","6":"0.3332333","7":"0.10714450","8":"0.4436470","9":"0.038438015","10":"0.8003890"},{"1":"Slovak Republic","2":"15991.736","3":"6.1","4":"5.638494","5":"0.1283560","6":"0.4615060","7":"0.08486313","8":"0.4389244","9":"0.055585077","10":"1.0949079"},{"1":"Estonia","2":"17288.083","3":"5.6","4":"5.702165","5":"0.1227687","6":"-0.1021647","7":"0.07763583","8":"0.4485208","9":"0.002453103","10":"-0.2414310"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 <div id="model-evaluation" class="section level1" number="7">
 <h1 number="7"><span class="header-section-number">7</span> Model evaluation</h1>
 <p>Root mean squared error:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">rmse</span>(<span class="dt">truth =</span> y_truth, <span class="co"># true values</span></span>
-<span id="cb9-2"><a href="#cb9-2"></a>     <span class="dt">estimate =</span> .pred,  <span class="co"># model predictions</span></span>
-<span id="cb9-3"><a href="#cb9-3"></a>     lm_pred) <span class="co"># data</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">rmse</span>(<span class="dt">truth =</span> y_truth, <span class="co"># true values</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>     <span class="dt">estimate =</span> .pred,  <span class="co"># model predictions</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>     lm_pred) <span class="co"># data</span></span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmse","2":"standard","3":"0.4251474"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>More performance measures:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">glance</span>(lm_fit<span class="op">$</span>fit) </span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">glance</span>(lm_fit<span class="op">$</span>fit) </span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["r.squared"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["adj.r.squared"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["sigma"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["statistic"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[6],"type":["int"],"align":["right"]},{"label":["logLik"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["deviance"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["df.residual"],"name":[11],"type":["int"],"align":["right"]}],"data":[{"1":"0.7344414","2":"0.7246059","3":"0.4406124","4":"74.67249","5":"2.952273e-09","6":"2","7":"-16.34496","8":"38.68992","9":"42.7918","10":"5.24176","11":"27"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Make a prediction for a new GDP value:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># New GDP per capita</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a>X_new &lt;-<span class="st">  </span><span class="kw">tibble</span>(<span class="dt">gdp_per_capita =</span> <span class="kw">c</span>(<span class="dv">50000</span>)) </span>
-<span id="cb11-3"><a href="#cb11-3"></a></span>
-<span id="cb11-4"><a href="#cb11-4"></a><span class="co"># Predict and print output</span></span>
-<span id="cb11-5"><a href="#cb11-5"></a>(<span class="kw">predict</span>(lm_fit, <span class="dt">new_data =</span> X_new))</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># New GDP per capita</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>X_new &lt;-<span class="st">  </span><span class="kw">tibble</span>(<span class="dt">gdp_per_capita =</span> <span class="kw">c</span>(<span class="dv">50000</span>)) </span>
+<span id="cb12-3"><a href="#cb12-3"></a></span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="co"># Predict and print output</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>(<span class="kw">predict</span>(lm_fit, <span class="dt">new_data =</span> X_new))</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[".pred"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"7.308825"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -3115,35 +3124,35 @@ h4 {
 <div id="alternative-model" class="section level1" number="8">
 <h1 number="8"><span class="header-section-number">8</span> Alternative model</h1>
 <p>K-nearest neighbor:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># Model selection</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a>knn_mod &lt;-<span class="st"> </span></span>
-<span id="cb12-3"><a href="#cb12-3"></a><span class="st">  </span><span class="kw">nearest_neighbor</span>(<span class="dt">neighbors =</span> <span class="dv">3</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb12-4"><a href="#cb12-4"></a><span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;kknn&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb12-5"><a href="#cb12-5"></a><span class="st">  </span><span class="kw">set_mode</span>(<span class="st">&quot;regression&quot;</span>) </span>
-<span id="cb12-6"><a href="#cb12-6"></a></span>
-<span id="cb12-7"><a href="#cb12-7"></a><span class="co"># Model training</span></span>
-<span id="cb12-8"><a href="#cb12-8"></a>knn_fit &lt;-<span class="st"> </span></span>
-<span id="cb12-9"><a href="#cb12-9"></a><span class="st">  </span>knn_mod <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb12-10"><a href="#cb12-10"></a><span class="st">  </span><span class="kw">fit</span>(life_satisfaction <span class="op">~</span><span class="st"> </span>gdp_per_capita, </span>
-<span id="cb12-11"><a href="#cb12-11"></a>                <span class="dt">data =</span> df)</span>
-<span id="cb12-12"><a href="#cb12-12"></a></span>
-<span id="cb12-13"><a href="#cb12-13"></a><span class="co"># Model prediction</span></span>
-<span id="cb12-14"><a href="#cb12-14"></a>knn_pred &lt;-</span>
-<span id="cb12-15"><a href="#cb12-15"></a><span class="st">  </span>knn_fit <span class="op">%&gt;%</span></span>
-<span id="cb12-16"><a href="#cb12-16"></a><span class="st">  </span><span class="kw">predict</span>(<span class="dt">new_data =</span> df) <span class="op">%&gt;%</span></span>
-<span id="cb12-17"><a href="#cb12-17"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">y_truth =</span> df<span class="op">$</span>life_satisfaction)</span>
-<span id="cb12-18"><a href="#cb12-18"></a></span>
-<span id="cb12-19"><a href="#cb12-19"></a><span class="co"># Model evaluation</span></span>
-<span id="cb12-20"><a href="#cb12-20"></a><span class="kw">rmse</span>(<span class="dt">truth =</span> y_truth, <span class="co"># true values</span></span>
-<span id="cb12-21"><a href="#cb12-21"></a>     <span class="dt">estimate =</span> .pred,  <span class="co"># model predictions</span></span>
-<span id="cb12-22"><a href="#cb12-22"></a>     knn_pred) <span class="co"># data</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Model selection</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>knn_mod &lt;-<span class="st"> </span></span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="st">  </span><span class="kw">nearest_neighbor</span>(<span class="dt">neighbors =</span> <span class="dv">3</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb13-4"><a href="#cb13-4"></a><span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;kknn&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="st">  </span><span class="kw">set_mode</span>(<span class="st">&quot;regression&quot;</span>) </span>
+<span id="cb13-6"><a href="#cb13-6"></a></span>
+<span id="cb13-7"><a href="#cb13-7"></a><span class="co"># Model training</span></span>
+<span id="cb13-8"><a href="#cb13-8"></a>knn_fit &lt;-<span class="st"> </span></span>
+<span id="cb13-9"><a href="#cb13-9"></a><span class="st">  </span>knn_mod <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="st">  </span><span class="kw">fit</span>(life_satisfaction <span class="op">~</span><span class="st"> </span>gdp_per_capita, </span>
+<span id="cb13-11"><a href="#cb13-11"></a>                <span class="dt">data =</span> df)</span>
+<span id="cb13-12"><a href="#cb13-12"></a></span>
+<span id="cb13-13"><a href="#cb13-13"></a><span class="co"># Model prediction</span></span>
+<span id="cb13-14"><a href="#cb13-14"></a>knn_pred &lt;-</span>
+<span id="cb13-15"><a href="#cb13-15"></a><span class="st">  </span>knn_fit <span class="op">%&gt;%</span></span>
+<span id="cb13-16"><a href="#cb13-16"></a><span class="st">  </span><span class="kw">predict</span>(<span class="dt">new_data =</span> df) <span class="op">%&gt;%</span></span>
+<span id="cb13-17"><a href="#cb13-17"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">y_truth =</span> df<span class="op">$</span>life_satisfaction)</span>
+<span id="cb13-18"><a href="#cb13-18"></a></span>
+<span id="cb13-19"><a href="#cb13-19"></a><span class="co"># Model evaluation</span></span>
+<span id="cb13-20"><a href="#cb13-20"></a><span class="kw">rmse</span>(<span class="dt">truth =</span> y_truth, <span class="co"># true values</span></span>
+<span id="cb13-21"><a href="#cb13-21"></a>     <span class="dt">estimate =</span> .pred,  <span class="co"># model predictions</span></span>
+<span id="cb13-22"><a href="#cb13-22"></a>     knn_pred) <span class="co"># data</span></span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmse","2":"standard","3":"0.238283"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Predict and print output</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a>(<span class="kw">predict</span>(knn_fit, <span class="dt">new_data =</span> X_new))</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># Predict and print output</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>(<span class="kw">predict</span>(knn_fit, <span class="dt">new_data =</span> X_new))</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[".pred"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"7.325926"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -3151,7 +3160,7 @@ h4 {
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiRmlyc3Qgc3RlcHMgaW4gRGF0YSBTY2llbmNlIC0gUGFydCAxIgpzdWJ0aXRsZTogIkRvZXMgbW9uZXkgbWFrZSBwZW9wbGUgaGFwcGllcj8iCmF1dGhvcjogIlByb2YuIERyLiBKYW4gS2lyZW56LCBIZE0gU3R1dHRnYXJ0IgpvdXRwdXQ6CiBodG1sX2RvY3VtZW50OgogIGNvZGVfZG93bmxvYWQ6IHRydWUKICBmaWdfaGVpZ2h0OiA0CiAgZmlnX3dpZHRoOiA0CiAgaGlnaGxpZ2h0OiB0YW5nbwogIG51bWJlcl9zZWN0aW9uczogeWVzCiAgdG9jOiB5ZXMKICB0b2NfZGVwdGg6IDMKICB0b2NfZmxvYXQ6IAogICAgY29sbGFwc2VkOiBmYWxzZQogICAgc21vb3RoX3Njcm9sbDogdHJ1ZSAKICB0aGVtZTogcGFwZXIKICBkZl9wcmludDogcGFnZWQKLS0tCgoKYGBge2NzcywgZWNobz1GQUxTRX0KCi8qIGNzcyBjb2RlIHRvIGNoYW5nZSB0aGUgbG9vayBvZiB0aGUgSFRNTC1vdXRwdXQgKi8KICAKaDEgewogIGNvbG9yOiAjRDAzMTNDOwogIGZvbnQtc2l6ZTogMjAwJTsKICB9CmgyIHsKICBjb2xvcjogI0QwMzEzQzsKICBmb250LXNpemU6IDE1MCU7CiAgfQpoMyB7CiAgZm9udC1zaXplOiAxMjAlOwogIGZvbnQtd2VpZ2h0OiBib2xkOwogIH0KaDQgewogIGNvbG9yOiByZ2IoMTM5LCAxNDIsIDE1MCk7CiAgZm9udC1zaXplOiAxMDAlOwogIGZvbnQtd2VpZ2h0OiBib2xkOwogIH0KCmBgYAoKCmBgYHtyIHNldHVwLCBpbmNsdWRlPUZBTFNFfQprbml0cjo6b3B0c19jaHVuayRzZXQoCgllY2hvID0gVFJVRSwKCW1lc3NhZ2UgPSBGQUxTRSwKCXdhcm5pbmcgPSBGQUxTRQopCmBgYAoKCiMgU2V0dXAKCmBgYHtyfQoKIyBMb2FkIHBhY2thZ2VzCmxpYnJhcnkodGlkeXZlcnNlKSAjIGNvbGxlY3Rpb24gb2YgaW1wb3J0YW50IGRhdGEgc2NpZW5jZSBwYWNrYWdlcwpsaWJyYXJ5KHRpZHltb2RlbHMpICAjIGNvbGxlY3Rpb24gb2YgcGFja2FnZXMgZm9yIG1vZGVsaW5nIGFuZCBtbApsaWJyYXJ5KGphbml0b3IpICMgZGF0YSBwcmVwYXJhdGlvbiBwYWNrYWdlCmxpYnJhcnkoa2tubikgIyBLLW5lYXJlc3QgbmVpZ2hib3IgbW9kZWwKCmBgYAoKIyBEYXRhIGltcG9ydAoKYGBge3J9CgojIEltcG9ydCB0aGUgZGF0YSBmcm9tIEdpdEh1YgpMSU5LID0gImh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9raXJlbnovZGF0YXNldHMvbWFzdGVyL29lY2RfZ2RwLmNzdiIKZGYgPC0gcmVhZF9jc3YoTElOSykKCiMgVGFrZSBhIGxvb2sgYXQgdGhlIGRhdGEKZ2xpbXBzZShkZikKCmBgYAoKIyBEYXRhIHByZXBhcmF0aW9uCgpgYGB7ciBmaWcud2lkdGg9NCwgZmlnLmhlaWdodD00fQoKIyBDaGFuZ2UgY29sdW1uIG5hbWVzCmRmIDwtICBjbGVhbl9uYW1lcyhkZikKCiMgVmlzdWFsaXplIHRoZSBkYXRhCmdncGxvdChkZiwgYWVzKHg9Z2RwX3Blcl9jYXBpdGEsIAogICAgICAgICAgICAgICB5PWxpZmVfc2F0aXNmYWN0aW9uKSkgKwogIGdlb21fcG9pbnQoKSArCiAgdGhlbWVfY2xhc3NpYygpCgpgYGAKCgojIE1vZGVsIHNlbGVjdGlvbgoKTGluZWFyIHJlZ3Jlc3Npb24gbW9kZWw6CgpgYGB7cn0KCmxtX21vZCA8LSAKICBsaW5lYXJfcmVnKCkgJT4lIAogIHNldF9lbmdpbmUoImxtIikgJT4lIAogIHNldF9tb2RlKG1vZGUgPSAicmVncmVzc2lvbiIpIAoKYGBgCgojIE1vZGVsIHRyYWluaW5nIAoKYGBge3J9CgpsbV9maXQgPC0gCiAgbG1fbW9kICU+JSAKICBmaXQobGlmZV9zYXRpc2ZhY3Rpb24gfiBnZHBfcGVyX2NhcGl0YSwgCiAgICAgICAgICAgICAgICBkYXRhID0gZGYpCgpgYGAKCk1vZGVsIHN1bW1hcnk6CgpgYGB7cn0KCnRpZHkobG1fZml0KQoKYGBgCgojIE1vZGVsIHByZWRpY3Rpb24KCmBgYHtyfQoKbG1fcHJlZCA8LQogIGxtX2ZpdCAlPiUKICBwcmVkaWN0KG5ld19kYXRhID0gZGYpICU+JQogIG11dGF0ZSh5X3RydXRoID0gZGYkbGlmZV9zYXRpc2ZhY3Rpb24pCgpoZWFkKGxtX3ByZWQpCgpgYGAKCiMgTW9kZWwgZXZhbHVhdGlvbgoKUm9vdCBtZWFuIHNxdWFyZWQgZXJyb3I6CgpgYGB7cn0KCnJtc2UodHJ1dGggPSB5X3RydXRoLCAjIHRydWUgdmFsdWVzCiAgICAgZXN0aW1hdGUgPSAucHJlZCwgICMgbW9kZWwgcHJlZGljdGlvbnMKICAgICBsbV9wcmVkKSAjIGRhdGEKCmBgYAoKTW9yZSBwZXJmb3JtYW5jZSBtZWFzdXJlczoKCmBgYHtyfQoKZ2xhbmNlKGxtX2ZpdCRmaXQpIAoKYGBgCgpNYWtlIGEgcHJlZGljdGlvbiBmb3IgYSBuZXcgR0RQIHZhbHVlOgoKYGBge3J9CgojIE5ldyBHRFAgcGVyIGNhcGl0YQpYX25ldyA8LSAgdGliYmxlKGdkcF9wZXJfY2FwaXRhID0gYyg1MDAwMCkpIAoKIyBQcmVkaWN0IGFuZCBwcmludCBvdXRwdXQKKHByZWRpY3QobG1fZml0LCBuZXdfZGF0YSA9IFhfbmV3KSkKCmBgYAoKIyBBbHRlcm5hdGl2ZSBtb2RlbAoKSy1uZWFyZXN0IG5laWdoYm9yOgoKYGBge3J9CgojIE1vZGVsIHNlbGVjdGlvbgprbm5fbW9kIDwtIAogIG5lYXJlc3RfbmVpZ2hib3IobmVpZ2hib3JzID0gMykgJT4lIAogIHNldF9lbmdpbmUoImtrbm4iKSAlPiUgCiAgc2V0X21vZGUoInJlZ3Jlc3Npb24iKSAKCiMgTW9kZWwgdHJhaW5pbmcKa25uX2ZpdCA8LSAKICBrbm5fbW9kICU+JSAKICBmaXQobGlmZV9zYXRpc2ZhY3Rpb24gfiBnZHBfcGVyX2NhcGl0YSwgCiAgICAgICAgICAgICAgICBkYXRhID0gZGYpCgojIE1vZGVsIHByZWRpY3Rpb24Ka25uX3ByZWQgPC0KICBrbm5fZml0ICU+JQogIHByZWRpY3QobmV3X2RhdGEgPSBkZikgJT4lCiAgbXV0YXRlKHlfdHJ1dGggPSBkZiRsaWZlX3NhdGlzZmFjdGlvbikKCiMgTW9kZWwgZXZhbHVhdGlvbgpybXNlKHRydXRoID0geV90cnV0aCwgIyB0cnVlIHZhbHVlcwogICAgIGVzdGltYXRlID0gLnByZWQsICAjIG1vZGVsIHByZWRpY3Rpb25zCiAgICAga25uX3ByZWQpICMgZGF0YQoKIyBQcmVkaWN0IGFuZCBwcmludCBvdXRwdXQKKHByZWRpY3Qoa25uX2ZpdCwgbmV3X2RhdGEgPSBYX25ldykpCgpgYGAK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiRmlyc3Qgc3RlcHMgaW4gRGF0YSBTY2llbmNlIC0gUGFydCAxIgpzdWJ0aXRsZTogIkRvZXMgbW9uZXkgbWFrZSBwZW9wbGUgaGFwcGllcj8iCmF1dGhvcjogIlByb2YuIERyLiBKYW4gS2lyZW56LCBIZE0gU3R1dHRnYXJ0IgpvdXRwdXQ6CiBodG1sX2RvY3VtZW50OgogIGNvZGVfZG93bmxvYWQ6IHRydWUKICBmaWdfaGVpZ2h0OiA0CiAgZmlnX3dpZHRoOiA0CiAgaGlnaGxpZ2h0OiB0YW5nbwogIG51bWJlcl9zZWN0aW9uczogeWVzCiAgdG9jOiB5ZXMKICB0b2NfZGVwdGg6IDMKICB0b2NfZmxvYXQ6IAogICAgY29sbGFwc2VkOiBmYWxzZQogICAgc21vb3RoX3Njcm9sbDogdHJ1ZSAKICB0aGVtZTogcGFwZXIKICBkZl9wcmludDogcGFnZWQKLS0tCgoKYGBge2NzcywgZWNobz1GQUxTRX0KCi8qIGNzcyBjb2RlIHRvIGNoYW5nZSB0aGUgbG9vayBvZiB0aGUgSFRNTC1vdXRwdXQgKi8KICAKaDEgewogIGNvbG9yOiAjRDAzMTNDOwogIGZvbnQtc2l6ZTogMjAwJTsKICB9CmgyIHsKICBjb2xvcjogI0QwMzEzQzsKICBmb250LXNpemU6IDE1MCU7CiAgfQpoMyB7CiAgZm9udC1zaXplOiAxMjAlOwogIGZvbnQtd2VpZ2h0OiBib2xkOwogIH0KaDQgewogIGNvbG9yOiByZ2IoMTM5LCAxNDIsIDE1MCk7CiAgZm9udC1zaXplOiAxMDAlOwogIGZvbnQtd2VpZ2h0OiBib2xkOwogIH0KCmBgYAoKCmBgYHtyIHNldHVwLCBpbmNsdWRlPUZBTFNFfQprbml0cjo6b3B0c19jaHVuayRzZXQoCgllY2hvID0gVFJVRSwKCW1lc3NhZ2UgPSBGQUxTRSwKCXdhcm5pbmcgPSBGQUxTRQopCmBgYAoKCiMgU2V0dXAKCmBgYHtyfQoKIyBMb2FkIHBhY2thZ2VzCmxpYnJhcnkodGlkeXZlcnNlKSAjIGNvbGxlY3Rpb24gb2YgaW1wb3J0YW50IGRhdGEgc2NpZW5jZSBwYWNrYWdlcwpsaWJyYXJ5KHRpZHltb2RlbHMpICAjIGNvbGxlY3Rpb24gb2YgcGFja2FnZXMgZm9yIG1vZGVsaW5nIGFuZCBtbApsaWJyYXJ5KGphbml0b3IpICMgZGF0YSBwcmVwYXJhdGlvbiBwYWNrYWdlCmxpYnJhcnkoa2tubikgIyBLLW5lYXJlc3QgbmVpZ2hib3IgbW9kZWwKCmBgYAoKIyBEYXRhIGltcG9ydAoKYGBge3J9CgojIEltcG9ydCB0aGUgZGF0YSBmcm9tIEdpdEh1YgpMSU5LID0gImh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9raXJlbnovZGF0YXNldHMvbWFzdGVyL29lY2RfZ2RwLmNzdiIKZGYgPC0gcmVhZF9jc3YoTElOSykKCiMgVGFrZSBhIGxvb2sgYXQgdGhlIGRhdGEKZ2xpbXBzZShkZikKCmBgYAoKIyBEYXRhIHByZXBhcmF0aW9uCgpgYGB7ciBmaWcud2lkdGg9NCwgZmlnLmhlaWdodD00fQoKIyBDaGFuZ2UgY29sdW1uIG5hbWVzCmRmIDwtICBjbGVhbl9uYW1lcyhkZikKCiMgVmlzdWFsaXplIHRoZSBkYXRhCmdncGxvdChkZiwgYWVzKHg9Z2RwX3Blcl9jYXBpdGEsIAogICAgICAgICAgICAgICB5PWxpZmVfc2F0aXNmYWN0aW9uKSkgKwogIGdlb21fcG9pbnQoKSArCiAgdGhlbWVfY2xhc3NpYygpCgpgYGAKCgojIE1vZGVsIHNlbGVjdGlvbgoKTGluZWFyIHJlZ3Jlc3Npb24gbW9kZWw6CgpgYGB7cn0KCmxtX21vZCA8LSAKICBsaW5lYXJfcmVnKCkgJT4lIAogIHNldF9lbmdpbmUoImxtIikgJT4lIAogIHNldF9tb2RlKG1vZGUgPSAicmVncmVzc2lvbiIpIAoKYGBgCgojIE1vZGVsIHRyYWluaW5nIAoKYGBge3J9CgpsbV9maXQgPC0gCiAgbG1fbW9kICU+JSAKICBmaXQobGlmZV9zYXRpc2ZhY3Rpb24gfiBnZHBfcGVyX2NhcGl0YSwgCiAgICAgICAgICAgICAgICBkYXRhID0gZGYpCgpgYGAKCk1vZGVsIHN1bW1hcnk6CgpgYGB7cn0KCnRpZHkobG1fZml0KQoKYGBgCgojIE1vZGVsIHByZWRpY3Rpb24KCmBgYHtyfQoKbG1fcHJlZCA8LQogIGxtX2ZpdCAlPiUKICBwcmVkaWN0KG5ld19kYXRhID0gZGYpICU+JQogIG11dGF0ZSh5X3RydXRoID0gZGYkbGlmZV9zYXRpc2ZhY3Rpb24pCgpoZWFkKGxtX3ByZWQpCgpgYGAKCkFsdGVybmF0aXZlbHksIHdlIGNvdWxkIHVzZSBgYXVnbWVudCgpYCB0byBvYnRhaW4gbW9kZWwgcHJlZGljdGlvbnMgYXMgd2VsbCBlcyByZXNpZHVhbHM6CgpgYGB7cn0KbG1fcHJlZF9hdWcgPC0gYXVnbWVudChsbV9maXQkZml0LCBkYXRhID0gZGYpCgpoZWFkKGxtX3ByZWRfYXVnKQoKYGBgCgoKIyBNb2RlbCBldmFsdWF0aW9uCgpSb290IG1lYW4gc3F1YXJlZCBlcnJvcjoKCmBgYHtyfQoKcm1zZSh0cnV0aCA9IHlfdHJ1dGgsICMgdHJ1ZSB2YWx1ZXMKICAgICBlc3RpbWF0ZSA9IC5wcmVkLCAgIyBtb2RlbCBwcmVkaWN0aW9ucwogICAgIGxtX3ByZWQpICMgZGF0YQoKYGBgCgpNb3JlIHBlcmZvcm1hbmNlIG1lYXN1cmVzOgoKYGBge3J9CgpnbGFuY2UobG1fZml0JGZpdCkgCgpgYGAKCk1ha2UgYSBwcmVkaWN0aW9uIGZvciBhIG5ldyBHRFAgdmFsdWU6CgpgYGB7cn0KCiMgTmV3IEdEUCBwZXIgY2FwaXRhClhfbmV3IDwtICB0aWJibGUoZ2RwX3Blcl9jYXBpdGEgPSBjKDUwMDAwKSkgCgojIFByZWRpY3QgYW5kIHByaW50IG91dHB1dAoocHJlZGljdChsbV9maXQsIG5ld19kYXRhID0gWF9uZXcpKQoKYGBgCgojIEFsdGVybmF0aXZlIG1vZGVsCgpLLW5lYXJlc3QgbmVpZ2hib3I6CgpgYGB7cn0KCiMgTW9kZWwgc2VsZWN0aW9uCmtubl9tb2QgPC0gCiAgbmVhcmVzdF9uZWlnaGJvcihuZWlnaGJvcnMgPSAzKSAlPiUgCiAgc2V0X2VuZ2luZSgia2tubiIpICU+JSAKICBzZXRfbW9kZSgicmVncmVzc2lvbiIpIAoKIyBNb2RlbCB0cmFpbmluZwprbm5fZml0IDwtIAogIGtubl9tb2QgJT4lIAogIGZpdChsaWZlX3NhdGlzZmFjdGlvbiB+IGdkcF9wZXJfY2FwaXRhLCAKICAgICAgICAgICAgICAgIGRhdGEgPSBkZikKCiMgTW9kZWwgcHJlZGljdGlvbgprbm5fcHJlZCA8LQogIGtubl9maXQgJT4lCiAgcHJlZGljdChuZXdfZGF0YSA9IGRmKSAlPiUKICBtdXRhdGUoeV90cnV0aCA9IGRmJGxpZmVfc2F0aXNmYWN0aW9uKQoKIyBNb2RlbCBldmFsdWF0aW9uCnJtc2UodHJ1dGggPSB5X3RydXRoLCAjIHRydWUgdmFsdWVzCiAgICAgZXN0aW1hdGUgPSAucHJlZCwgICMgbW9kZWwgcHJlZGljdGlvbnMKICAgICBrbm5fcHJlZCkgIyBkYXRhCgojIFByZWRpY3QgYW5kIHByaW50IG91dHB1dAoocHJlZGljdChrbm5fZml0LCBuZXdfZGF0YSA9IFhfbmV3KSkKCmBgYAo=</div>
 
 
 </div>
