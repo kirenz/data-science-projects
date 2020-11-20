@@ -335,12 +335,11 @@ We use the package [`recipe`](https://recipes.tidymodels.org) to prepare the dat
 ```{r}
 
 spline_rec <-
-  recipe(life_satisfaction ~ gdp_per_capita, 
-                data = df_train) %>%
-  step_ns(gdp_per_capita, 
-          deg_free = tune("gdp_per_capita")) 
+  recipe(life_satisfaction ~ gdp_per_capita, data = df_train) %>%
+  step_ns(gdp_per_capita, deg_free = tune("gdp_per_capita")) 
 
 ```
+
 
 ### Tuning
 
@@ -359,7 +358,9 @@ We use `update()` to tune the parameter objects:
 spline_param <-
   spline_rec %>%
     parameters() %>%
-    update(gdp_per_capita = spline_degree())
+    update(
+      gdp_per_capita = spline_degree()
+           )
 
 # Take a look at the tuning parameter
 spline_degree()
@@ -438,6 +439,23 @@ Relationship between the hyperparameter and RMSE:
 autoplot(spline_fit, metric = "rmse")
 
 ```
+
+
+### Plot model
+
+Visualize the model:
+
+```{r}
+
+library(splines)
+
+ggplot(df_train, aes(gdp_per_capita, life_satisfaction)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", formula = y ~ ns(x, 3), se = FALSE) +
+  theme_classic()
+
+```
+
 
 
 ## K-nearest neighbor
@@ -683,7 +701,7 @@ Visualize the model:
 ggplot(df_train, aes(gdp_per_capita, life_satisfaction)) + 
   geom_point() + 
   geom_smooth(method = "lm", 
-              formula = y ~ splines::bs(x, 3), se = F) +
+              formula = y ~ splines::ns(x, 3), se = F) +
   theme_classic()
 
 ```
