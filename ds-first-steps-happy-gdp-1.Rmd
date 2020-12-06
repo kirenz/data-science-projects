@@ -80,41 +80,47 @@ glimpse(df)
 
 # Data preparation
 
-```{r fig.width=4, fig.height=4}
+Change column names with the function `clean_names()` from the janitor package:
 
-# Change column names
+```{r }
+
 df <-  clean_names(df)
 
-# Visualize the data
-ggplot(df, aes(x=gdp_per_capita, 
-               y=life_satisfaction)) +
+```
+
+Visualize the data
+
+```{r fig.width=4, fig.height=4}
+
+ggplot(df, aes(x=gdp_per_capita, y=life_satisfaction)) +
   geom_point() +
   theme_classic()
 
 ```
 
+# Modeling
 
-# Model selection
+## Model specification
 
 Linear regression model:
 
 ```{r}
 
-lm_mod <- 
-  linear_reg() %>% 
-  set_engine("lm") %>% 
-  set_mode(mode = "regression") 
+lm_spec <- # your specified model
+  linear_reg() %>% # set model type
+  set_engine("lm") %>% # set engine
+  set_mode(mode = "regression")  # set mode
 
 ```
 
-# Model training 
+## Model training 
 
 ```{r}
 
-lm_fit <- 
-  lm_mod %>% 
-  fit(life_satisfaction ~ gdp_per_capita, 
-                data = df)
+lm_fit <- # save your trained model
+  lm_spec %>% # use your model specification
+  fit(life_satisfaction ~ gdp_per_capita,  # regression formula
+                data = df) # data
 
 ```
 
@@ -122,34 +128,41 @@ Model summary:
 
 ```{r}
 
-tidy(lm_fit)
+tidy(lm_fit) # show model summary
 
 ```
 
-# Model prediction
+## Model prediction
 
 ```{r}
 
-lm_pred <-
-  lm_fit %>%
-  predict(new_data = df) %>%
-  mutate(y_truth = df$life_satisfaction)
+lm_pred <- # save predictions
+  lm_fit %>% # use your fitted model
+  predict(new_data = df) %>% # make predictions
+  mutate(y_truth = df$life_satisfaction) # add the truth observations
 
-head(lm_pred)
+head(lm_pred) # take a look at the data
 
 ```
 
-Alternatively, we could use `augment()` to obtain model predictions as well es residuals:
+Furthermore, if we would want to use our model to make predictions for new data (e.g. for gdp per capita 50000 and 25000), we could proceed as follows: 
 
 ```{r}
-lm_pred_aug <- augment(lm_fit$fit, data = df)
 
-head(lm_pred_aug)
+# New GDP per capita
+X_new <-  tibble(
+  gdp_per_capita = c(50000, 25000)
+  ) 
+
+# Predict and print output
+(predict(lm_fit, new_data = X_new))
 
 ```
 
 
-# Model evaluation
+## Model evaluation
+
+### RMSE
 
 Root mean squared error:
 
@@ -161,7 +174,9 @@ rmse(truth = y_truth, # true values
 
 ```
 
-More performance measures:
+### More metrics
+
+More performance metrics:
 
 ```{r}
 
@@ -169,48 +184,63 @@ glance(lm_fit$fit)
 
 ```
 
-Make a prediction for a new GDP value:
-
-```{r}
-
-# New GDP per capita
-X_new <-  tibble(gdp_per_capita = c(50000)) 
-
-# Predict and print output
-(predict(lm_fit, new_data = X_new))
-
-```
 
 # Alternative model
 
-K-nearest neighbor:
+K-nearest neighbor model
+
+## Model specification
 
 ```{r}
 
-# Model selection
-knn_mod <- 
+knn_spec <- 
   nearest_neighbor(neighbors = 3) %>% 
   set_engine("kknn") %>% 
   set_mode("regression") 
 
-# Model training
+```
+
+## Model training
+
+```{r}
+
 knn_fit <- 
-  knn_mod %>% 
+  knn_spec %>% 
   fit(life_satisfaction ~ gdp_per_capita, 
                 data = df)
+```
 
-# Model prediction
+
+## Model prediction
+
+```{r}
+
 knn_pred <-
   knn_fit %>%
   predict(new_data = df) %>%
   mutate(y_truth = df$life_satisfaction)
 
-# Model evaluation
+```
+
+Make predictions for our new data from before and print output
+
+```{r}
+
+(predict(knn_fit, new_data = X_new))
+
+```
+
+
+## Model evaluation
+
+```{r}
+
 rmse(truth = y_truth, # true values
      estimate = .pred,  # model predictions
      knn_pred) # data
 
-# Predict and print output
-(predict(knn_fit, new_data = X_new))
-
 ```
+
+
+
+

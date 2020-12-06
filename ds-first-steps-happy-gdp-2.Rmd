@@ -66,6 +66,7 @@ library(janitor) # data preparation package
 library(kknn) # K-nearest neighbor model
 library(skimr) # to obtain tidy data summaries
 library(corrplot) # to study corrleations
+library(GGally) # to create combined plots
 library(workflows) # to create workflows
 
 ```
@@ -149,7 +150,7 @@ df_expl %>% skim()
 
 Visualize the data.
 
-Scatterplot:
+#### Scatterplot
 
 ```{r fig.width=4, fig.height=4}
 
@@ -160,7 +161,7 @@ ggplot(df_expl, aes(x = gdp_per_capita,
 
 ```
 
-Histogram:
+#### Histogram
 
 ```{r fig.width=4, fig.height=4}
 
@@ -179,7 +180,7 @@ ggplot(df_expl, aes(x = life_satisfaction)) +
 
 ```
 
-Boxplot:
+#### Boxplot
 
 ```{r fig.width=4, fig.height=4}
 
@@ -197,6 +198,20 @@ ggplot(df_expl, aes(x = "", y = life_satisfaction)) +
   theme_classic()
 
 ```
+
+#### Combined plots
+
+Create combined plots with GGally.
+
+
+```{r}
+
+df_expl %>% 
+  select(-country) %>% 
+  ggpairs()
+
+```
+
 
 
 ### Correlations
@@ -243,11 +258,11 @@ We want to use three different regression models:
 2. natural spline in conjunction with a linear regression model,
 3. K-nearest-neighbour model.
 
-We use k-fold cross-validation to identify the best model.
+We want to use k-fold cross-validation to identify the best model.
 
 ## K-fold cross-validation
 
-Prepare 5-fold cross-validation:
+Prepare 5-fold cross-validation for model evaluation:
 
 ```{r}
 set.seed(123)
@@ -264,7 +279,7 @@ Specify the model:
 
 ```{r}
 
-lm_mod <- 
+lm_spec <- 
   linear_reg() %>% 
   set_engine("lm") %>% 
   set_mode(mode = "regression") 
@@ -278,7 +293,7 @@ Train the model with k-fold cross-validation:
 ```{r}
 
 lm_fit <-
-  lm_mod %>% 
+  lm_spec %>% 
   fit_resamples(life_satisfaction ~ gdp_per_capita, 
       resamples = cv_folds)
 
@@ -287,17 +302,23 @@ lm_fit <-
 
 ### Model evaluation
 
-Obtain model summary:
+Obtain model summary. Average performance accross all folds:
 
 ```{r}
 
-# Performance measures for every fold
-collect_metrics(lm_fit, summarize = FALSE)
-
-# Average performance accross all folds
 collect_metrics(lm_fit, summarize = TRUE)
 
 ```
+
+Performance measures for every fold
+
+
+```{r}
+
+collect_metrics(lm_fit, summarize = FALSE)
+
+```
+
 
 ### Plot model
 
@@ -314,7 +335,6 @@ ggplot(df_train, aes(gdp_per_capita, life_satisfaction)) +
 
 
 
-
 ## Natural regression spline
 
 ### Specify model
@@ -323,7 +343,7 @@ Specify the linear regression model:
 
 ```{r}
 
-lm_mod_sp <- 
+spline_spec <- 
   linear_reg() %>% 
   set_engine("lm")
 
@@ -383,7 +403,7 @@ Combine the linear regression model with the natural spline:
 ```{r}
 
 spline_fit <- 
-  tune_grid(lm_mod_sp, # linear regression model
+  tune_grid(spline_spec, # linear regression model
             spline_rec,  # our recipe
             resamples = cv_folds, # k-fold cross-validation 
             grid = spline_grid) # grid search with spline parameters
@@ -413,6 +433,7 @@ To get the average metric value for each parameter combination, `collect_metrics
 ```{r}
 
 estimates <- collect_metrics(spline_fit)
+
 estimates
 
 ```
@@ -477,7 +498,7 @@ The number of neighbors and the distance weighting function are hyperparameters 
 
 ```{r}
 
-knn_mod <-
+knn_spec <-
   nearest_neighbor(neighbors = tune(), 
                    weight_func = tune()) %>%
   set_engine("kknn") %>%
@@ -491,7 +512,7 @@ Combine all steps in one workflow:
 
 knn_wflow <-
   workflow() %>%
-  add_model(knn_mod) %>%
+  add_model(knn_spec) %>%
   add_recipe(knn_rec)
 
 ```
@@ -576,18 +597,18 @@ Best KNN model:
 
 ```{r}
 
-knn_mod_bnest <-
+knn_spec_best <-
   nearest_neighbor(neighbors = 5, 
                    weight_func = "triangular") %>%
   set_engine("kknn") %>%
   set_mode("regression")
 
-knn_mod_best_fit <-
-  knn_mod_bnest %>% 
+knn_spec_best_fit <-
+  knn_spec_best %>% 
   fit(life_satisfaction ~ gdp_per_capita, 
       data = df_train)
 
-knn_mod_best_fit 
+knn_spec_best_fit 
 
 ```
 
@@ -616,7 +637,7 @@ We can use the function `last_fit()` with our finalized model; this function fir
 
 ```{r}
 
-spline_final <- last_fit(lm_mod_sp, 
+spline_final <- last_fit(spline_spec, 
                          spline_rec_last, 
                          split = df_split)
 
@@ -647,7 +668,7 @@ Instead of using this procedere, we could also use a workflow.
 spline_wflow_last <- 
   workflow() %>% 
   add_recipe(spline_rec_last) %>% 
-  add_model(lm_mod_sp) 
+  add_model(spline_spec) 
 
 ```
 
@@ -767,7 +788,9 @@ Make a prediction for a new GDP value with the final model:
 
 ```{r}
 
-X_new <-  tibble(gdp_per_capita = c(50000))
+X_new <-  tibble(
+  gdp_per_capita = c(50000, 25000)
+  )
 
 (predict(final_model, new_data = X_new))
 
