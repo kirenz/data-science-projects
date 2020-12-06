@@ -104,7 +104,7 @@ ggplot(df, aes(x=gdp_per_capita,
 
 ```{r}
 
-lm_mod <- 
+lm_spec <- 
   linear_reg() %>% 
   set_engine("lm") %>% 
   set_mode(mode = "regression") 
@@ -115,7 +115,7 @@ lm_mod <-
 
 ```{r}
 
-knn_mod <- 
+knn_spec <- 
   nearest_neighbor(neighbors = 3) %>% 
   set_engine("kknn") %>% 
   set_mode("regression") 
@@ -151,7 +151,7 @@ cv_folds <- vfold_cv(df_train, v = 5)
 ```{r}
 
 lm_fit <- 
-  lm_mod %>% 
+  lm_spec %>% 
   fit_resamples(life_satisfaction ~ gdp_per_capita, 
                 resamples = cv_folds)
 
@@ -160,12 +160,16 @@ lm_fit <-
 ```{r}
 
 # Model summary
-lm_fit %>% 
-  collect_metrics(summarize = FALSE)
+
 
 lm_fit %>% 
   collect_metrics(summarize = TRUE)
 
+```
+
+```{r}
+lm_fit %>% 
+  collect_metrics(summarize = FALSE)
 ```
 
 
@@ -174,7 +178,7 @@ lm_fit %>%
 ```{r}
 
 knn_fit <- 
-  knn_mod %>% 
+  knn_spec %>% 
   fit_resamples(life_satisfaction ~ gdp_per_capita, 
                 resamples = cv_folds)
 
@@ -186,9 +190,14 @@ knn_fit <-
 knn_fit %>% 
   collect_metrics(summarize = FALSE)
 
+
+
+```
+
+
+```{r}
 knn_fit %>% 
   collect_metrics(summarize = TRUE)
-
 ```
 
 
@@ -198,7 +207,7 @@ knn_fit %>%
 
 # Train best model with all training data
 last_lm_fit <- 
-  lm_mod %>% 
+  lm_spec %>% 
   fit(life_satisfaction ~ gdp_per_capita, 
                 data = df_train)
 
@@ -240,8 +249,8 @@ glance(last_lm_fit$fit) # more measures
 
 ```{r}
 
-# Make a prediction for a new GDP value
-X_new <-  tibble(gdp_per_capita = c(50000)) # new GDP per capita
+# Make a prediction for new GDP values
+X_new <-  tibble(gdp_per_capita = c(50000, 25000)) # new GDP per capita
 
 ```
 
